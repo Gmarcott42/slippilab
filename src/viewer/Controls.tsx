@@ -1,4 +1,4 @@
-import { onCleanup, onMount, Show, useContext } from "solid-js";
+import { createSignal, onCleanup, onMount, Show, useContext } from "solid-js";
 import { ReplayStoreContext } from "~/state/replayStore";
 import { SelectionStoreContext } from "~/state/selectionStore";
 
@@ -22,6 +22,7 @@ export function Controls() {
       zoomOut,
     },
   ] = useContext(ReplayStoreContext);
+  const [isFullscreen, setIsFullscreen] = createSignal(false);
   onMount(() => {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -30,6 +31,24 @@ export function Controls() {
     window.removeEventListener("keydown", onKeyDown);
     window.removeEventListener("keyup", onKeyUp);
   });
+
+  async function toggleFullscreen() {
+    const isFullscreen =
+      // @ts-ignore
+      document.fullscreenElement ?? document.webkitFullscreenElement;
+    if (isFullscreen) {
+      await document.exitFullscreen?.();
+      // @ts-ignore
+      document.webkitCancelFullScreen?.();
+      setIsFullscreen(false);
+    } else {
+      const viewerDiv = document.querySelector("svg#viewer")?.parentElement!;
+      await viewerDiv.requestFullscreen?.();
+      // @ts-ignore
+      viewerDiv.webkitRequestFullscreen?.();
+      setIsFullscreen(true);
+    }
+  }
 
   function onKeyDown({ key }: KeyboardEvent): void {
     switch (key) {
@@ -98,6 +117,8 @@ export function Controls() {
       case "d":
         toggleDebug();
         break;
+      case "f":
+        toggleFullscreen();
     }
   }
 
@@ -113,7 +134,7 @@ export function Controls() {
   let seekbarInput!: HTMLInputElement;
 
   return (
-    <div class="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
+    <div class="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border bg-white pl-2 pr-4 text-slate-800">
       <Show
         when={replayState.running}
         fallback={
@@ -180,6 +201,13 @@ export function Controls() {
           aria-label="Skip ahead 2 seconds"
         >
           update
+        </div>
+        <div
+          class="material-icons cursor-pointer text-7xl md:text-4xl"
+          onClick={() => toggleFullscreen()}
+          aria-label="Toggle fullscreen"
+        >
+          {isFullscreen() ? "fullscreen_exit" : "fullscreen"}
         </div>
       </div>
     </div>
