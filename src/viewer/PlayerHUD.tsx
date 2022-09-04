@@ -1,8 +1,10 @@
+import { useSnapshot } from "valtio";
 import { characterNameByInternalId } from "~/common/ids";
 import { replayStore } from "~/state/replayStore";
 
 export function PlayerHUD(props: { player: number }) {
-  const renderData = replayStore.renderDatas.find(
+  const { renderDatas, isDebug } = useSnapshot(replayStore);
+  const renderData = renderDatas.find(
     (renderData) =>
       renderData.playerSettings.playerIndex === props.player &&
       renderData.playerState.isNana === false
@@ -45,7 +47,7 @@ export function PlayerHUD(props: { player: number }) {
         style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
         x={`${position.x}%`}
         y={`${position.y + 4}%`}
-        text-anchor="middle"
+        textAnchor="middle"
         fill={renderData!.innerColor}
         stroke="black"
       >{`${Math.floor(renderData!.playerState.percent)}%`}</text>
@@ -53,19 +55,19 @@ export function PlayerHUD(props: { player: number }) {
         style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
         x={`${position.x}%`}
         y={`${position.y + 7}%`}
-        text-anchor="middle"
+        textAnchor="middle"
         fill={renderData!.innerColor}
         stroke="black"
       >
         {name}
       </text>
-      {replayStore.isDebug && (
+      {isDebug && (
         <>
           <text
             style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
             x={`${position.x}%`}
             y="-40%"
-            text-anchor="middle"
+            textAnchor="middle"
             fill={renderData!.innerColor}
             stroke="black"
           >
@@ -75,7 +77,7 @@ export function PlayerHUD(props: { player: number }) {
             style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
             x={`${position.x}%`}
             y="-37%"
-            text-anchor="middle"
+            textAnchor="middle"
             fill={renderData!.innerColor}
             stroke="black"
           >
@@ -87,7 +89,7 @@ export function PlayerHUD(props: { player: number }) {
             style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
             x={`${position.x}%`}
             y="-34%"
-            text-anchor="middle"
+            textAnchor="middle"
             fill={renderData!.innerColor}
             stroke="black"
           >
@@ -97,7 +99,7 @@ export function PlayerHUD(props: { player: number }) {
             style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
             x={`${position.x}%`}
             y="-31%"
-            text-anchor="middle"
+            textAnchor="middle"
             fill={renderData!.innerColor}
             stroke="black"
           >
@@ -107,7 +109,7 @@ export function PlayerHUD(props: { player: number }) {
             style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
             x={`${position.x}%`}
             y="-28%"
-            text-anchor="middle"
+            textAnchor="middle"
             fill={renderData!.innerColor}
             stroke="black"
           >

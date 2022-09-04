@@ -4,10 +4,12 @@ import { Players } from "~/viewer/Player";
 import { Stage } from "~/viewer/Stage";
 import { Item } from "~/viewer/Item";
 import { replayStore } from "~/state/replayStore";
+import { useSnapshot } from "valtio";
 
 export function Viewer() {
-  const items = replayStore.replayData?.frames[replayStore.frame].items ?? [];
-  if (!replayStore.replayData) {
+  const { replayData, frame } = useSnapshot(replayStore);
+  const items = replayData?.frames[frame].items ?? [];
+  if (!replayData) {
     return null;
   }
   return (

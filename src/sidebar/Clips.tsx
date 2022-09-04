@@ -35,8 +35,8 @@ export function Clips() {
 
   return (
     <div {...api.rootProps}>
-      {data.map((item) => (
-        <div {...api.getItemProps({ value: item.title })}>
+      {data.map((item, index) => (
+        <div key={index} {...api.getItemProps({ value: item.title })}>
           <h3>
             <button
               className={classNames(

@@ -1,12 +1,15 @@
 import { Fragment } from "react";
+import { useSnapshot } from "valtio";
 import { characterNameByExternalId } from "~/common/ids";
+import { ReplayData } from "~/common/types";
 import { RenderData, replayStore } from "~/state/replayStore";
 import { getPlayerOnFrame, getStartOfAction } from "~/viewer/viewerUtil";
 
 export function Players() {
+  const { renderDatas } = useSnapshot(replayStore);
   return (
     <>
-      {replayStore.renderDatas.map((renderData, index) => (
+      {renderDatas.map((renderData, index) => (
         <Fragment key={index}>
           <path
             transform={renderData.transforms.join(" ")}
@@ -15,8 +18,8 @@ export function Players() {
             stroke-width={2}
             stroke={renderData.outerColor}
           />
-          <Shield renderData={renderData} />
-          <Shine renderData={renderData} />
+          <Shield renderData={renderData as RenderData} />
+          <Shine renderData={renderData as RenderData} />
         </Fragment>
       ))}
     </>
@@ -24,6 +27,7 @@ export function Players() {
 }
 
 function Shield(props: { renderData: RenderData }) {
+  const { replayData } = useSnapshot(replayStore);
   // [0,60]
   const shieldHealth = props.renderData.playerState.shieldSize;
   // [0,1]. If 0 is received, set to 1 because user may have released shield
@@ -38,9 +42,9 @@ function Shield(props: { renderData: RenderData }) {
           props.renderData.playerSettings.playerIndex,
           getStartOfAction(
             props.renderData.playerState,
-            replayStore.replayData!
+            replayData as ReplayData
           ),
-          replayStore.replayData!
+          replayData as ReplayData
         ).inputs.processed.anyTrigger
       : props.renderData.playerInputs.processed.anyTrigger === 0
       ? 1

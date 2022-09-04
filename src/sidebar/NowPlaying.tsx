@@ -1,16 +1,16 @@
+import { useSnapshot } from "valtio";
 import { replayStore } from "~/state/replayStore";
 import { selectionStore } from "~/state/selectionStore";
 
 export function NowPlaying() {
+  const { replayData } = useSnapshot(replayStore);
+  const { selectedFileAndSettings } = useSnapshot(selectionStore);
   const info =
-    replayStore.replayData === undefined ||
-    selectionStore.selectedFileAndSettings === undefined
+    replayData === undefined || selectedFileAndSettings === undefined
       ? {}
       : {
-          name: selectionStore.selectedFileAndSettings[0].name,
-          date: new Date(
-            replayStore.replayData.settings.startTimestamp
-          ).toLocaleString(),
+          name: selectedFileAndSettings[0].name,
+          date: new Date(replayData.settings.startTimestamp).toLocaleString(),
         };
   return (
     <>

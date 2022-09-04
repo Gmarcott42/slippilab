@@ -1,7 +1,7 @@
-import { proxy } from "valtio";
-import createRAF, { targetFPS } from "@solid-primitives/raf";
+import { proxy, snapshot, subscribe } from "valtio";
+import { subscribeKey } from "valtio/utils";
 import { map, max, modulo, times, update } from "rambda";
-import { createEffect, createResource } from "solid-js";
+// import { createResource } from "solid-js";
 import {
   actionNameById,
   characterNameByExternalId,
@@ -137,11 +137,11 @@ export function toggleDebug(): void {
 }
 
 export function togglePause(): void {
-  running() ? stop() : start();
+  replayStore.running = !replayStore.running;
 }
 
 export function pause(): void {
-  stop();
+  replayStore.running = false;
 }
 
 export function jump(target: number): void {
@@ -159,21 +159,26 @@ export function adjust(delta: number): void {
   replayStore.frame = wrapFrame(replayStore, replayStore.frame + delta);
 }
 
-const [running, start, stop] = createRAF(
-  targetFPS(
-    () =>
-      (replayStore.frame = wrapFrame(
+let lastRender = performance.now();
+function animate(time: number = performance.now()) {
+  requestAnimationFrame(animate);
+  const elapsed = time - lastRender;
+  const frameInterval = 1000 / replayStore.fps;
+  if (elapsed > frameInterval) {
+    lastRender = time - (elapsed % frameInterval);
+    if (replayStore.running) {
+      replayStore.frame = wrapFrame(
         replayStore,
         replayStore.frame + replayStore.framesPerTick
-      )),
-    () => replayStore.fps
-  )
-);
-createEffect(() => (replayStore.running = running()));
+      );
+    }
+  }
+}
+animate();
 
-createEffect(async () => {
-  const selected = selectionStore.selectedFileAndSettings;
-  if (selected === undefined) {
+subscribeKey(selectionStore, "selectedFileAndSettings", async (sfas) => {
+  const { selectedFileAndSettings } = snapshot(selectionStore);
+  if (selectedFileAndSettings === undefined) {
     replayStore.highlights = map(() => [], queries);
     replayStore.frame = 0;
     replayStore.renderDatas = [];
@@ -185,66 +190,68 @@ createEffect(async () => {
     replayStore.isDebug = false;
     return;
   }
-  const replayData = parseReplay(await selected[0].arrayBuffer());
+  const replayData = parseReplay(
+    await selectedFileAndSettings[0].arrayBuffer()
+  );
   const highlights = map((query) => search(replayData, ...query), queries);
   replayStore.replayData = replayData;
   replayStore.highlights = highlights;
   replayStore.frame = fileStore.urlStartFrame ?? 0;
   replayStore.renderDatas = [];
   if (fileStore.urlStartFrame === undefined || fileStore.urlStartFrame === 0) {
-    start();
+    replayStore.running = true;
   }
 });
 
-times(
-  (playerIndex) =>
-    createResource(
-      () => {
-        const replay = replayStore.replayData;
-        if (replay === undefined) {
-          return undefined;
-        }
-        const playerSettings = replay.settings.playerSettings[playerIndex];
-        if (playerSettings === undefined) {
-          return undefined;
-        }
-        const playerUpdate =
-          replay.frames[replayStore.frame].players[playerIndex];
-        if (playerUpdate === undefined) {
-          return playerSettings.externalCharacterId;
-        }
-        if (
-          playerUpdate.state.internalCharacterId ===
-          characterNameByInternalId.indexOf("Zelda")
-        ) {
-          return characterNameByExternalId.indexOf("Zelda");
-        }
-        if (
-          playerUpdate.state.internalCharacterId ===
-          characterNameByInternalId.indexOf("Sheik")
-        ) {
-          return characterNameByExternalId.indexOf("Sheik");
-        }
-        return playerSettings.externalCharacterId;
-      },
-      (id) => (id === undefined ? undefined : fetchAnimations(id))
-    ),
-  4
-).forEach(([dataSignal], playerIndex) =>
-  createEffect(
-    () =>
-      // I can't use the obvious setReplayState("animations", playerIndex, dataSignal())
-      // because it will merge into the previous animations data object,
-      // essentially overwriting the previous characters animation data forever
-      (replayStore.animations = update(
-        playerIndex,
-        dataSignal(),
-        replayStore.animations
-      ))
-  )
-);
+// times(
+//   (playerIndex) =>
+//     createResource(
+//       () => {
+//         const replay = replayStore.replayData;
+//         if (replay === undefined) {
+//           return undefined;
+//         }
+//         const playerSettings = replay.settings.playerSettings[playerIndex];
+//         if (playerSettings === undefined) {
+//           return undefined;
+//         }
+//         const playerUpdate =
+//           replay.frames[replayStore.frame].players[playerIndex];
+//         if (playerUpdate === undefined) {
+//           return playerSettings.externalCharacterId;
+//         }
+//         if (
+//           playerUpdate.state.internalCharacterId ===
+//           characterNameByInternalId.indexOf("Zelda")
+//         ) {
+//           return characterNameByExternalId.indexOf("Zelda");
+//         }
+//         if (
+//           playerUpdate.state.internalCharacterId ===
+//           characterNameByInternalId.indexOf("Sheik")
+//         ) {
+//           return characterNameByExternalId.indexOf("Sheik");
+//         }
+//         return playerSettings.externalCharacterId;
+//       },
+//       (id) => (id === undefined ? undefined : fetchAnimations(id))
+//     ),
+//   4
+// ).forEach(([dataSignal], playerIndex) =>
+//   createEffect(
+//     () =>
+//       // I can't use the obvious setReplayState("animations", playerIndex, dataSignal())
+//       // because it will merge into the previous animations data object,
+//       // essentially overwriting the previous characters animation data forever
+//       (replayStore.animations = update(
+//         playerIndex,
+//         dataSignal(),
+//         replayStore.animations
+//       ))
+//   )
+// );
 
-createEffect(() => {
+subscribeKey(replayStore, "frame", () => {
   if (replayStore.replayData === undefined) {
     return;
   }

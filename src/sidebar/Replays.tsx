@@ -1,4 +1,4 @@
-import { createOptions, Select } from "@thisbeyond/solid-select";
+import CreatableSelect from "react-select/creatable";
 import { groupBy } from "rambda";
 import { characterNameByExternalId, stageNameByExternalId } from "~/common/ids";
 import { Picker } from "~/common/Picker";
@@ -11,22 +11,27 @@ import {
   select,
   nextFile,
   previousFile,
+  Filter,
 } from "~/state/selectionStore";
+import { useSnapshot } from "valtio";
 
-const filterProps = createOptions(
-  [
-    ...characterNameByExternalId.map((name) => ({
-      type: "character",
-      label: name,
-    })),
-    ...stageNameByExternalId.map((name) => ({ type: "stage", label: name })),
-  ],
-  {
-    key: "label",
-    createable: (code) => ({ type: "codeOrName", label: code }),
-  }
-);
+// TODO: support custom filters (display name, connect code, nametag)
+const filterOptions = [
+  ...characterNameByExternalId.map((name) => ({
+    type: "character",
+    label: name,
+    value: name,
+  })),
+  ...stageNameByExternalId.map((name) => ({
+    type: "stage",
+    label: name,
+    value: name,
+  })),
+];
+
 export function Replays() {
+  const { filteredFilesAndSettings, selectedFileAndSettings, filters } =
+    useSnapshot(selectionStore);
   return (
     <>
       <div className="flex h-full w-96 flex-col items-center gap-2 overflow-y-auto">
@@ -36,24 +41,24 @@ export function Replays() {
           onKeyDown={(e) => e.stopPropagation()}
           onKeyUp={(e) => e.stopPropagation()}
         >
-          <Select
+          <CreatableSelect
             className="w-full rounded border border-slate-600 bg-white"
             placeholder="Filter"
-            multiple
-            {...filterProps}
-            initialValue={selectionStore.filters}
-            onChange={setFilters}
+            options={filterOptions}
+            isMulti
+            // initialValue={selectionStore.filters}
+            onChange={(filters) => setFilters(filters as unknown as Filter[])}
           />
         </div>
         <Picker
-          items={selectionStore.filteredFilesAndSettings}
+          items={filteredFilesAndSettings as [File, GameSettings][]}
           render={([file, gameSettings]) => (
             <GameInfo gameSettings={gameSettings} />
           )}
           onClick={(fileAndSettings) => select(fileAndSettings)}
           selected={([file, gameSettings]) =>
-            selectionStore.selectedFileAndSettings?.[0] === file &&
-            selectionStore.selectedFileAndSettings?.[1] === gameSettings
+            selectedFileAndSettings?.[0] === file &&
+            selectedFileAndSettings?.[1] === gameSettings
           }
           estimateSize={([file, gameSettings]) =>
             gameSettings.isTeams ? 56 : 32

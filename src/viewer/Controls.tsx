@@ -1,5 +1,5 @@
-import { createRef } from "react";
-import { onCleanup, onMount } from "solid-js";
+import { createRef, useEffect } from "react";
+import { useSnapshot } from "valtio";
 import {
   replayStore,
   adjust,
@@ -19,13 +19,14 @@ import {
 import { nextFile, previousFile } from "~/state/selectionStore";
 
 export function Controls() {
-  onMount(() => {
+  const { frame, running, isDebug, replayData } = useSnapshot(replayStore);
+  useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-  });
-  onCleanup(() => {
-    window.removeEventListener("keydown", onKeyDown);
-    window.removeEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
   });
 
   function onKeyDown({ key }: KeyboardEvent): void {
@@ -111,7 +112,7 @@ export function Controls() {
 
   return (
     <div className="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
-      {replayStore.running ? (
+      {running ? (
         <div
           className="material-icons cursor-pointer text-7xl md:text-5xl"
           onClick={() => togglePause()}
@@ -129,15 +130,15 @@ export function Controls() {
         </div>
       )}
       <label htmlFor="seekbar" className="text-sm">
-        {replayStore.isDebug ? replayStore.frame - 123 : replayStore.frame}
+        {isDebug ? frame - 123 : frame}
       </label>
       <input
         id="seekbar"
         className="flex-grow accent-slippi-500"
         type="range"
         ref={seekbarInput}
-        value={replayStore.frame}
-        max={replayStore.replayData!.frames.length - 1}
+        value={frame}
+        max={replayData!.frames.length - 1}
         onInput={() =>
           seekbarInput.current && jump(seekbarInput.current.valueAsNumber)
         }

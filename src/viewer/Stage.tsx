@@ -1,9 +1,10 @@
+import { useSnapshot } from "valtio";
 import { stageNameByExternalId } from "~/common/ids";
 import { replayStore } from "~/state/replayStore";
 
 export function Stage() {
-  const stageName =
-    stageNameByExternalId[replayStore.replayData!.settings.stageId];
+  const { replayData } = useSnapshot(replayStore);
+  const stageName = stageNameByExternalId[replayData!.settings.stageId];
   switch (stageName) {
     case "Battlefield":
       return <Battlefield />;
@@ -227,8 +228,10 @@ function YoshisStory() {
     1021: [-14.6375150680542, -103.3063049316406],
     1022: [-14.954894065856934, -103.4649963378906],
   };
+
+  const { frame } = useSnapshot(replayStore);
   // return frameNumber to -123 based.
-  const frameInLap = (replayStore.frame - 123 + 1200) % 1200;
+  const frameInLap = (frame - 123 + 1200) % 1200;
   const randallWidth = 11.9;
 
   const randall = () => {

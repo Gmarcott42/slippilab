@@ -1,3 +1,4 @@
+import { useSnapshot } from "valtio";
 import { replayStore } from "~/state/replayStore";
 
 export function Timer() {
@@ -63,8 +64,8 @@ export function Timer() {
     "98",
     "99",
   ];
-  const frames =
-    replayStore.replayData!.settings.timerStart * 60 - replayStore.frame + 123;
+  const { frame, replayData } = useSnapshot(replayStore);
+  const frames = replayData!.settings.timerStart * 60 - frame + 123;
   const minutes = Math.floor(frames / (60 * 60))
     .toString()
     .padStart(2, "0");
@@ -76,7 +77,7 @@ export function Timer() {
   return (
     <text
       style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
-      text-anchor="middle"
+      textAnchor="middle"
       y="-42%"
       className="fill-slate-800"
     >

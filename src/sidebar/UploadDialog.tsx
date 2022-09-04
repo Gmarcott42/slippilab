@@ -9,8 +9,10 @@ import {
 import { uploadReplay } from "~/supabaseClient";
 import { selectionStore } from "~/state/selectionStore";
 import { useState } from "react";
+import { useSnapshot } from "valtio";
 
 export function UploadDialog() {
+  const { selectedFileAndSettings } = useSnapshot(selectionStore);
   const [state, setState] = useState<"not started" | "loading" | "done">(
     "not started"
   );
@@ -20,7 +22,7 @@ export function UploadDialog() {
 
   async function onUploadClicked() {
     setState("loading");
-    const [file] = selectionStore.selectedFileAndSettings!;
+    const [file] = selectedFileAndSettings!;
     const { id, data, error } = await uploadReplay(file);
     if (data != null) {
       setUrl(`${window.location.origin}/${id}`);
@@ -53,8 +55,7 @@ export function UploadDialog() {
             {state === "not started" && (
               <div className="flex flex-col items-center gap-3">
                 <p className="text-sm">
-                  Upload {selectionStore.selectedFileAndSettings?.[0].name} to
-                  share?
+                  Upload {selectedFileAndSettings?.[0].name} to share?
                 </p>
                 <PrimaryButton onClick={onUploadClicked}>Upload</PrimaryButton>
               </div>

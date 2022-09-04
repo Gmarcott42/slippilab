@@ -1,29 +1,30 @@
 import { fetchAnimations } from "~/viewer/animationCache";
-import { createDropzone } from "@solid-primitives/upload";
 import { Landing } from "~/Landing";
 import { filterFiles } from "~/common/util";
 import { ToastProvider } from "~/common/toaster";
-import "@thisbeyond/solid-select/style.css";
-import { fileStore, load } from "~/state/fileStore";
 import { TopBar } from "~/TopBar";
 import { MainContent } from "~/MainContent";
 import { downloadReplay } from "~/supabaseClient";
+import { useDropzone } from "react-dropzone";
+import { useCallback } from "react";
+import { useSnapshot } from "valtio";
+import { fileStore, load } from "~/state/fileStore";
+import "~/state/selectionStore";
+import "~/state/replayStore";
+
+// Get started fetching the most popular characters
+void fetchAnimations(20); // Falco
+void fetchAnimations(2); // Fox
+void fetchAnimations(0); // Falcon
+void fetchAnimations(9); // Marth
 
 export function App() {
-  // Get started fetching the most popular characters
-  void fetchAnimations(20); // Falco
-  void fetchAnimations(2); // Fox
-  void fetchAnimations(0); // Falcon
-  void fetchAnimations(9); // Marth
-
   // Make the whole screen a dropzone
-  const { setRef: dropzoneRef } = createDropzone({
-    onDrop: async (uploads) => {
-      const files = uploads.map((upload) => upload.file);
-      const filteredFiles = await filterFiles(files);
-      return await load(filteredFiles);
-    },
-  });
+  const onDrop = useCallback(async (files: File[]) => {
+    const filteredFiles = await filterFiles(files);
+    return await load(filteredFiles);
+  }, []);
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   // load a file from query params if provided. Otherwise start playing the sample
   // match.
@@ -52,12 +53,14 @@ export function App() {
     });
   }
 
+  const { files } = useSnapshot(fileStore);
+
   return (
     <ToastProvider>
-      {fileStore.files.length > 0 ? (
+      {files.length > 0 ? (
         <div
           className="flex flex-col md:h-screen md:w-screen"
-          ref={dropzoneRef}
+          {...getRootProps()}
         >
           <TopBar />
           <MainContent />
@@ -65,6 +68,7 @@ export function App() {
       ) : (
         <Landing />
       )}
+      <input {...getInputProps()} />
     </ToastProvider>
   );
 }
@@ -74,9 +78,12 @@ export function App() {
  * - requestAnimationFrame, replace solid-primitive
  * - file dropzone, replace solid-primitive
  * - accordion, replace zagjs with headless-ui
- * - toast, replace zagjs with headless-ui
- * - select, replace solid-select with react-select
+ * - toast, replace zagjs with headless-ui?
+ * - select, support custom nametags
  * - virtualized list, replace solid-virtual with react-virtual
- * - remove solidjs reactivity, repalce createEffect with vialto subscriptions
- * - rewrite components depending on solidjs reactivity semantics
+ * - create-resource, replace with some state mgmt thingy
+ * - remove solidjs reactivity, replace createEffect with vialto subscriptions
+ * - rewrite components depending on solidjs reactivity semantics, rules of
+ *   hooks, etc.
+ * - check performance
  */

@@ -1,10 +1,12 @@
+import { useSnapshot } from "valtio";
 import { replayStore } from "~/state/replayStore";
 import { PlayerHUD } from "~/viewer/PlayerHUD";
 import { Timer } from "~/viewer/Timer";
 
 export function HUD() {
-  const playerIndexes = replayStore
-    .replayData!.settings.playerSettings.filter(Boolean)
+  const { replayData } = useSnapshot(replayStore);
+  const playerIndexes = replayData!.settings.playerSettings
+    .filter(Boolean)
     .map((playerSettings) => playerSettings.playerIndex);
   return (
     <>

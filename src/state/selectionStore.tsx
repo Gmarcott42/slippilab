@@ -1,4 +1,5 @@
-import { proxy, useSnapshot } from "valtio";
+import { proxy, snapshot } from "valtio";
+import { subscribeKey } from "valtio/utils";
 import { GameSettings } from "~/common/types";
 import {
   characterNameByExternalId,
@@ -6,9 +7,9 @@ import {
   ExternalStageName,
   stageNameByExternalId,
 } from "~/common/ids";
-import { createEffect, on } from "solid-js";
 import { groupBy, map, zip } from "rambda";
 import { fileStore } from "~/state/fileStore";
+import { parseReplay } from "~/parser/parser";
 
 export type Filter =
   | { type: "character"; label: ExternalCharacterName }
@@ -35,20 +36,19 @@ export function select(fileAndSettings: [File, GameSettings]) {
 }
 
 export function nextFile() {
-  const snap = useSnapshot(selectionStore);
-  if (snap.filteredFilesAndSettings.length === 0) {
+  if (selectionStore.filteredFilesAndSettings.length === 0) {
     return;
   }
-  if (snap.selectedFileAndSettings === undefined) {
+  if (selectionStore.selectedFileAndSettings === undefined) {
     selectionStore.selectedFileAndSettings =
       selectionStore.filteredFilesAndSettings[0];
   } else {
-    const currentIndex = snap.filteredFilesAndSettings.findIndex(
-      ([file]) => file === snap.selectedFileAndSettings![0]
+    const currentIndex = selectionStore.filteredFilesAndSettings.findIndex(
+      ([file]) => file === selectionStore.selectedFileAndSettings![0]
     );
     const nextIndex = wrap(
       currentIndex + 1,
-      snap.filteredFilesAndSettings.length
+      selectionStore.filteredFilesAndSettings.length
     );
     selectionStore.selectedFileAndSettings =
       selectionStore.filteredFilesAndSettings[nextIndex];
@@ -56,55 +56,108 @@ export function nextFile() {
 }
 
 export function previousFile() {
-  const snap = useSnapshot(selectionStore);
-  if (snap.filteredFilesAndSettings.length === 0) {
+  if (selectionStore.filteredFilesAndSettings.length === 0) {
     return;
   }
-  if (snap.selectedFileAndSettings === undefined) {
+  if (selectionStore.selectedFileAndSettings === undefined) {
     selectionStore.selectedFileAndSettings =
       selectionStore.filteredFilesAndSettings[0];
   } else {
-    const currentIndex = snap.filteredFilesAndSettings.findIndex(
-      ([file]) => file === snap.selectedFileAndSettings![0]
+    const currentIndex = selectionStore.filteredFilesAndSettings.findIndex(
+      ([file]) => file === selectionStore.selectedFileAndSettings![0]
     );
     const nextIndex = wrap(
       currentIndex - 1,
-      snap.filteredFilesAndSettings.length
+      selectionStore.filteredFilesAndSettings.length
     );
     selectionStore.selectedFileAndSettings =
       selectionStore.filteredFilesAndSettings[nextIndex];
   }
 }
 
-createEffect(
-  on(
-    () => fileStore.files,
-    () => (selectionStore.selectedFileAndSettings = undefined)
-  )
-);
+subscribeKey(fileStore, "files", (f) => {
+  selectionStore.selectedFileAndSettings = undefined;
+});
+
+// createEffect(
+//   on(
+//     () => fileStore.files,
+//     () => (selectionStore.selectedFileAndSettings = undefined)
+//   )
+// );
 
 // Update filter results if files, gameSettings, or filters change
-createEffect(() => {
-  const filesWithSettings = zip(fileStore.files, fileStore.gameSettings) as [
-    File,
-    GameSettings
-  ][];
+subscribeKey(fileStore, "files", (f) => {
+  const { files, gameSettings } = snapshot(fileStore);
+  const { filters } = snapshot(selectionStore);
+  const filesWithSettings = zip(
+    files as File[],
+    gameSettings as GameSettings[]
+  ) as [File, GameSettings][];
   selectionStore.filteredFilesAndSettings = applyFilters(
     filesWithSettings,
-    selectionStore.filters
+    filters as Filter[]
   );
 });
+subscribeKey(fileStore, "gameSettings", (g) => {
+  const { files, gameSettings } = snapshot(fileStore);
+  const { filters } = snapshot(selectionStore);
+  const filesWithSettings = zip(
+    files as File[],
+    gameSettings as GameSettings[]
+  ) as [File, GameSettings][];
+  selectionStore.filteredFilesAndSettings = applyFilters(
+    filesWithSettings,
+    filters as Filter[]
+  );
+});
+subscribeKey(selectionStore, "filters", (f) => {
+  const { files, gameSettings } = snapshot(fileStore);
+  const { filters } = snapshot(selectionStore);
+  const filesWithSettings = zip(
+    files as File[],
+    gameSettings as GameSettings[]
+  ) as [File, GameSettings][];
+  selectionStore.filteredFilesAndSettings = applyFilters(
+    filesWithSettings,
+    filters as Filter[]
+  );
+});
+// createEffect(() => {
+//   const filesWithSettings = zip(fileStore.files, fileStore.gameSettings) as [
+//     File,
+//     GameSettings
+//   ][];
+//   selectionStore.filteredFilesAndSettings = applyFilters(
+//     filesWithSettings,
+//     selectionStore.filters
+//   );
+// });
 
 // ???
-createEffect(() => {
+subscribeKey(selectionStore, "filteredFilesAndSettings", (ffas) => {
+  const { filteredFilesAndSettings, selectedFileAndSettings } =
+    snapshot(selectionStore);
   if (
-    selectionStore.filteredFilesAndSettings.length > 0 &&
-    selectionStore.selectedFileAndSettings === undefined
+    filteredFilesAndSettings.length > 0 &&
+    selectedFileAndSettings === undefined
   ) {
-    selectionStore.selectedFileAndSettings =
-      selectionStore.filteredFilesAndSettings[0];
+    selectionStore.selectedFileAndSettings = filteredFilesAndSettings[0] as [
+      File,
+      GameSettings
+    ];
   }
 });
+
+// createEffect(() => {
+//   if (
+//     selectionStore.filteredFilesAndSettings.length > 0 &&
+//     selectionStore.selectedFileAndSettings === undefined
+//   ) {
+//     selectionStore.selectedFileAndSettings =
+//       selectionStore.filteredFilesAndSettings[0];
+//   }
+// });
 
 function applyFilters(
   filesWithSettings: [File, GameSettings][],
