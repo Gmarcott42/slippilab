@@ -2,7 +2,7 @@ import { fetchAnimations } from "~/viewer/animationCache";
 import { createDropzone } from "@solid-primitives/upload";
 import { Landing } from "~/Landing";
 import { filterFiles } from "~/common/util";
-import { ToastGroup } from "~/common/toaster";
+import { ToastProvider } from "~/common/toaster";
 import "@thisbeyond/solid-select/style.css";
 import { fileStore, load } from "~/state/fileStore";
 import { TopBar } from "~/TopBar";
@@ -53,7 +53,7 @@ export function App() {
   }
 
   return (
-    <>
+    <ToastProvider>
       {fileStore.files.length > 0 ? (
         <div
           className="flex flex-col md:h-screen md:w-screen"
@@ -65,7 +65,18 @@ export function App() {
       ) : (
         <Landing />
       )}
-      <ToastGroup />
-    </>
+    </ToastProvider>
   );
 }
+
+/**
+ * TODO:
+ * - requestAnimationFrame, replace solid-primitive
+ * - file dropzone, replace solid-primitive
+ * - accordion, replace zagjs with headless-ui
+ * - toast, replace zagjs with headless-ui
+ * - select, replace solid-select with react-select
+ * - virtualized list, replace solid-virtual with react-virtual
+ * - remove solidjs reactivity, repalce createEffect with vialto subscriptions
+ * - rewrite components depending on solidjs reactivity semantics
+ */

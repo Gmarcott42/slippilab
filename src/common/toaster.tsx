@@ -1,12 +1,12 @@
-import { PropTypes, useActor, useMachine } from "@zag-js/solid";
+import { useActor, useMachine, normalizeProps } from "@zag-js/react";
 import * as toast from "@zag-js/toast";
+import { createContext, ReactNode, useContext } from "react";
 import { createPortal } from "react-dom";
 import { WhiteButton } from "~/common/Button";
 
-function Toast(props: { actor: any }) {
+function Toast(props: { actor: toast.Service }) {
   const [state, send] = useActor(props.actor);
-  // @ts-ignore
-  const api = toast.connect<PropTypes>(state, send);
+  const api = toast.connect(state, send, normalizeProps);
 
   return (
     <div
@@ -27,26 +27,31 @@ function Toast(props: { actor: any }) {
   );
 }
 
-const [state, send] = useMachine(toast.group.machine);
-const api = toast.group.connect(state, send);
+const ToastContext = createContext<typeof toast.group.connect | undefined>(
+  undefined
+);
 
-export function ToastGroup() {
-  return createPortal(
-    <>
-      {Object.entries(api.toastsByPlacement).map(
-        ([placement, toasts], index) => (
-          // @ts-ignore
-          <div key={index} {...api.getGroupProps({ placement })}>
-            {toasts.map((toast, index) => (
-              <Toast key={index} actor={toast} />
-            ))}
-          </div>
-        )
-      )}
-    </>,
-    document.body
-  );
+export function useToast() {
+  return useContext(ToastContext);
 }
 
-export const createToast = api.create;
-export const dismissToast = api.dismiss;
+export function ToastProvider({ children }: { children?: ReactNode }) {
+  const [state, send] = useMachine(toast.group.machine({ id: "1" }));
+  const api = toast.group.connect(state, send, normalizeProps);
+  return (
+    // @ts-ignore: zag doesn't have their types together yet I think
+    <ToastContext.Provider value={api}>
+      {children}
+      {Object.entries(api.toastsByPlacement).map(([placement, toasts]) => (
+        <div
+          key={placement}
+          {...api.getGroupProps({ placement: placement as toast.Placement })}
+        >
+          {toasts.map((toast) => (
+            <Toast key={toast.id} actor={toast} />
+          ))}
+        </div>
+      ))}
+    </ToastContext.Provider>
+  );
+}

@@ -1,3 +1,4 @@
+import { createRef } from "react";
 import { onCleanup, onMount } from "solid-js";
 import {
   replayStore,
@@ -106,7 +107,7 @@ export function Controls() {
     }
   }
 
-  let seekbarInput!: HTMLInputElement;
+  let seekbarInput = createRef<HTMLInputElement>();
 
   return (
     <div className="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
@@ -137,7 +138,9 @@ export function Controls() {
         ref={seekbarInput}
         value={replayStore.frame}
         max={replayStore.replayData!.frames.length - 1}
-        onInput={() => jump(seekbarInput.valueAsNumber)}
+        onInput={() =>
+          seekbarInput.current && jump(seekbarInput.current.valueAsNumber)
+        }
       />
       <div className="flex items-center gap-2">
         <div

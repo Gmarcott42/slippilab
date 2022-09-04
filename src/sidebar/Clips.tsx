@@ -1,10 +1,9 @@
-import { createUniqueId } from "solid-js";
 import { PlayerBadge } from "~/common/Badge";
 import { Picker } from "~/common/Picker";
 import { Highlight } from "~/search/search";
 import { replayStore, selectHighlight } from "~/state/replayStore";
 import * as accordion from "@zag-js/accordion";
-import { normalizeProps, useMachine, useSetup, PropTypes } from "@zag-js/solid";
+import { normalizeProps, useMachine } from "@zag-js/react";
 import { classMap, classNames } from "~/common/util";
 
 export function Clips() {
@@ -30,14 +29,13 @@ export function Clips() {
     ),
   }));
   const [state, send] = useMachine(
-    accordion.machine({ multiple: true, collapsible: true })
+    accordion.machine({ id: "1", multiple: true, collapsible: true })
   );
-  const ref = useSetup({ send, id: createUniqueId() });
-  const api = accordion.connect<PropTypes>(state, send, normalizeProps);
+  const api = accordion.connect(state, send, normalizeProps);
 
   return (
-    <div ref={ref} {...api.rootProps}>
-      {data.map((item, index) => (
+    <div {...api.rootProps}>
+      {data.map((item) => (
         <div {...api.getItemProps({ value: item.title })}>
           <h3>
             <button
