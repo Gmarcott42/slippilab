@@ -22,7 +22,7 @@ module.exports = {
       },
       keyframes: {
         draw: {
-          to: { "stroke-dashoffset": 0 },
+          to: { strokeDashoffset: 0 },
         },
       },
     },

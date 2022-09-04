@@ -11,31 +11,35 @@
     "@tanstack/virtual-core": "3.0.0-alpha.1",
     "@thisbeyond/solid-select": "^0.12.0",
     "@zag-js/accordion": "^0.1.8",
-    "@zag-js/menu": "^0.1.7",
+    "@zag-js/menu": "^0.1.14",
+    "@zag-js/react": "^0.1.16",
     "@zag-js/solid": "^0.1.8",
     "@zag-js/toast": "^0.1.7",
     "@zip.js/zip.js": "^2.6.18",
     "rambda": "^7.2.1",
-    "solid-js": "^1.5.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "valtio": "^1.6.4",
     "zoo-ids": "^2.0.7"
   },
   "devDependencies": {
+    "@types/react": "^18.0.18",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.0.1",
     "autoprefixer": "^10.4.8",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
-    "solid-testing-library": "^0.3.0",
     "tailwindcss": "^3.1.8",
     "typescript": "^4.8.2",
     "vite": "^3.0.9",
-    "vite-plugin-solid": "^2.3.0",
     "vite-tsconfig-paths": "^3.5.0"
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "check": "tsc --noEmit",
+    "types": "tsc",
     "format": "prettier -w src/"
   }
 }

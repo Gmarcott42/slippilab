@@ -1,34 +1,25 @@
-import { createMemo, For, Match, Switch, useContext } from "solid-js";
 import { stageNameByExternalId } from "~/common/ids";
-import { ReplayStoreContext } from "~/state/replayStore";
+import { replayStore } from "~/state/replayStore";
 
 export function Stage() {
-  const [replayState] = useContext(ReplayStoreContext);
-  const stageName = createMemo(
-    () => stageNameByExternalId[replayState.replayData!.settings.stageId]
-  );
-  return (
-    <Switch>
-      <Match when={stageName() === "Battlefield"}>
-        <Battlefield />
-      </Match>
-      <Match when={stageName() === "Dream Land N64"}>
-        <Dreamland />
-      </Match>
-      <Match when={stageName() === "Final Destination"}>
-        <FinalDestination />
-      </Match>
-      <Match when={stageName() === "Yoshi's Story"}>
-        <YoshisStory />
-      </Match>
-      <Match when={stageName() === "Fountain of Dreams"}>
-        <FountainOfDreams />
-      </Match>
-      <Match when={stageName() === "Pokémon Stadium"}>
-        <PokemonStadium />
-      </Match>
-    </Switch>
-  );
+  const stageName =
+    stageNameByExternalId[replayStore.replayData!.settings.stageId];
+  switch (stageName) {
+    case "Battlefield":
+      return <Battlefield />;
+    case "Dream Land N64":
+      return <Dreamland />;
+    case "Final Destination":
+      return <FinalDestination />;
+    case "Yoshi's Story":
+      return <YoshisStory />;
+    case "Fountain of Dreams":
+      return <FountainOfDreams />;
+    case "Pokémon Stadium":
+      return <PokemonStadium />;
+    default:
+      return null;
+  }
 }
 
 function Battlefield() {
@@ -65,19 +56,21 @@ function Battlefield() {
   return (
     <>
       <Grid blastzones={blastzones} />
-      <polyline points={mainStage.join(" ")} class="fill-slate-800" />
-      <For each={platforms}>
-        {(points) => (
-          <polyline points={points.join(" ")} class="stroke-slate-800" />
-        )}
-      </For>
+      <polyline points={mainStage.join(" ")} className="fill-slate-800" />
+      {platforms.map((points, index) => (
+        <polyline
+          key={index}
+          points={points.join(" ")}
+          className="stroke-slate-800"
+        />
+      ))}
       <rect
         x={blastzones[0][0]}
         y={blastzones[0][1]}
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
@@ -106,19 +99,21 @@ function Dreamland() {
   return (
     <>
       <Grid blastzones={blastzones} />
-      <polyline points={mainStage.join(" ")} class="fill-slate-800" />
-      <For each={platforms}>
-        {(points) => (
-          <polyline points={points.join(" ")} class="stroke-slate-800" />
-        )}
-      </For>
+      <polyline points={mainStage.join(" ")} className="fill-slate-800" />
+      {platforms.map((points, index) => (
+        <polyline
+          key={index}
+          points={points.join(" ")}
+          className="stroke-slate-800"
+        />
+      ))}
       <rect
         x={blastzones[0][0]}
         y={blastzones[0][1]}
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
@@ -149,21 +144,20 @@ function FinalDestination() {
   return (
     <>
       <Grid blastzones={blastzones} />
-      <polyline points={mainStage.join(" ")} class="fill-slate-800" />
+      <polyline points={mainStage.join(" ")} className="fill-slate-800" />
       <rect
         x={blastzones[0][0]}
         y={blastzones[0][1]}
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
 }
 
 function YoshisStory() {
-  const [replayState] = useContext(ReplayStoreContext);
   const mainStage = [
     "-54, -91",
     "-54, -47",
@@ -199,45 +193,45 @@ function YoshisStory() {
     ["28, 23.45", "59.5, 23.45"],
     ["-15.75, 42", "15.75, 42"],
   ];
-  const randall = createMemo(() => {
-    const cornerPositions: {
-      [frameCount: number]: [y: number, xLeft: number];
-    } = {
-      416: [-33.184478759765625, 89.75263977050781],
-      417: [-33.04470443725586, 90.07878112792969],
-      418: [-32.904930114746094, 90.40492248535156],
-      419: [-32.76515197753906, 90.73107147216797],
-      420: [-32.49260711669922, 90.92455291748047],
-      421: [-32.16635513305664, 91.06437683105469],
-      422: [-31.84010314941406, 91.20419311523438],
-      423: [-31.513851165771484, 91.3440170288086],
-      469: [-15.1948881149292, 91.3371353149414],
-      470: [-14.868742942810059, 91.1973648071289],
-      471: [-14.542601585388184, 91.05758666992188],
-      472: [-14.216456413269043, 90.91781616210938],
-      473: [-13.967143058776855, 90.71036529541016],
-      474: [-13.869664192199707, 90.36917877197266],
-      475: [-13.772183418273926, 90.02799224853516],
-      476: [-13.674698829650879, 89.68680572509766],
-      1069: [-31.59004211425781, -103.554931640625],
-      1070: [-31.907413482666016, -103.39625549316406],
-      1071: [-32.22478485107422, -103.23756408691406],
-      1072: [-32.54215621948242, -103.07887268066406],
-      1073: [-32.7216796875, -102.77439880371094],
-      1074: [-32.89775085449219, -102.46626281738281],
-      1075: [-33.07382583618164, -102.15814208984375],
-      1016: [-13.679760932922363, -101.919677734375],
-      1017: [-13.819535255432129, -102.24581909179688],
-      1018: [-13.959305763244629, -102.57196044921875],
-      1019: [-14.099089622497559, -102.8981018066406],
-      1020: [-14.320136070251465, -103.1476135253906],
-      1021: [-14.6375150680542, -103.3063049316406],
-      1022: [-14.954894065856934, -103.4649963378906],
-    };
-    // return frameNumber to -123 based.
-    const frameInLap = (replayState.frame - 123 + 1200) % 1200;
-    const randallWidth = 11.9;
+  const cornerPositions: {
+    [frameCount: number]: [y: number, xLeft: number];
+  } = {
+    416: [-33.184478759765625, 89.75263977050781],
+    417: [-33.04470443725586, 90.07878112792969],
+    418: [-32.904930114746094, 90.40492248535156],
+    419: [-32.76515197753906, 90.73107147216797],
+    420: [-32.49260711669922, 90.92455291748047],
+    421: [-32.16635513305664, 91.06437683105469],
+    422: [-31.84010314941406, 91.20419311523438],
+    423: [-31.513851165771484, 91.3440170288086],
+    469: [-15.1948881149292, 91.3371353149414],
+    470: [-14.868742942810059, 91.1973648071289],
+    471: [-14.542601585388184, 91.05758666992188],
+    472: [-14.216456413269043, 90.91781616210938],
+    473: [-13.967143058776855, 90.71036529541016],
+    474: [-13.869664192199707, 90.36917877197266],
+    475: [-13.772183418273926, 90.02799224853516],
+    476: [-13.674698829650879, 89.68680572509766],
+    1069: [-31.59004211425781, -103.554931640625],
+    1070: [-31.907413482666016, -103.39625549316406],
+    1071: [-32.22478485107422, -103.23756408691406],
+    1072: [-32.54215621948242, -103.07887268066406],
+    1073: [-32.7216796875, -102.77439880371094],
+    1074: [-32.89775085449219, -102.46626281738281],
+    1075: [-33.07382583618164, -102.15814208984375],
+    1016: [-13.679760932922363, -101.919677734375],
+    1017: [-13.819535255432129, -102.24581909179688],
+    1018: [-13.959305763244629, -102.57196044921875],
+    1019: [-14.099089622497559, -102.8981018066406],
+    1020: [-14.320136070251465, -103.1476135253906],
+    1021: [-14.6375150680542, -103.3063049316406],
+    1022: [-14.954894065856934, -103.4649963378906],
+  };
+  // return frameNumber to -123 based.
+  const frameInLap = (replayStore.frame - 123 + 1200) % 1200;
+  const randallWidth = 11.9;
 
+  const randall = () => {
     if (frameInLap > 476 && frameInLap < 1016) {
       const start = 101.235443115234;
       const speed = -0.35484;
@@ -280,7 +274,7 @@ function YoshisStory() {
     const left = [position[1], y];
     const right = [position[1] + randallWidth, y];
     return [left, right];
-  });
+  };
   const blastzones = [
     [-175.7, -91],
     [173.6, 169],
@@ -290,21 +284,23 @@ function YoshisStory() {
       <Grid blastzones={blastzones} />
       <polyline
         points={mainStage.join(" ")}
-        class="fill-slate-800 stroke-slate-800"
+        className="fill-slate-800 stroke-slate-800"
       />
-      <For each={platforms}>
-        {(points) => (
-          <polyline points={points.join(" ")} class="stroke-slate-800" />
-        )}
-      </For>
-      <polyline points={randall().join(" ")} class="stroke-slate-400" />
+      {platforms.map((points, index) => (
+        <polyline
+          key={index}
+          points={points.join(" ")}
+          className="stroke-slate-800"
+        />
+      ))}
+      <polyline points={randall().join(" ")} className="stroke-slate-400" />
       <rect
         x={blastzones[0][0]}
         y={blastzones[0][1]}
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
@@ -359,19 +355,18 @@ function FountainOfDreams() {
   return (
     <>
       <Grid blastzones={blastzones} />
-      <polyline points={mainStage.join(" ")} class="fill-slate-800" />
-      <For each={platforms.slice(0, 2)}>
-        {(points) => (
-          <polyline
-            points={points.join(" ")}
-            stroke-dasharray="2,4"
-            class="stroke-slate-800"
-          />
-        )}
-      </For>
+      <polyline points={mainStage.join(" ")} className="fill-slate-800" />
+
+      {platforms.slice(0, 2).map((points, index) => (
+        <polyline
+          key={index}
+          points={points.join(" ")}
+          className="stroke-slate-800"
+        />
+      ))}
       <polyline
         points={platforms[platforms.length - 1].join(" ")}
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
       <rect
         x={blastzones[0][0]}
@@ -379,7 +374,7 @@ function FountainOfDreams() {
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
@@ -416,49 +411,49 @@ function PokemonStadium() {
   return (
     <>
       <Grid blastzones={blastzones} />
-      <polyline points={mainStage.join(" ")} class="fill-slate-800" />
-      <For each={platforms}>
-        {(points) => (
-          <polyline points={points.join(" ")} class="stroke-slate-800" />
-        )}
-      </For>
+      <polyline points={mainStage.join(" ")} className="fill-slate-800" />
+      {platforms.map((points, index) => (
+        <polyline
+          key={index}
+          points={points.join(" ")}
+          className="stroke-slate-800"
+        />
+      ))}
       <rect
         x={blastzones[0][0]}
         y={blastzones[0][1]}
         width={blastzones[1][0] - blastzones[0][0]}
         height={blastzones[1][1] - blastzones[0][1]}
         fill="none"
-        class="stroke-slate-800"
+        className="stroke-slate-800"
       />
     </>
   );
 }
 function Grid(props: { blastzones: number[][] }) {
-  const lines = createMemo(() => {
-    const left = props.blastzones[0][0];
-    const bottom = props.blastzones[0][1];
-    const right = props.blastzones[1][0];
-    const top = props.blastzones[1][1];
-    const result = [];
-    for (let x = props.blastzones[0][0]; x < props.blastzones[1][0]; x += 5) {
-      result.push([x, x, bottom, top]);
-    }
-    for (let y = props.blastzones[0][0]; y < props.blastzones[1][0]; y += 5) {
-      result.push([left, right, y, y]);
-    }
-    return result;
-  });
+  const left = props.blastzones[0][0];
+  const bottom = props.blastzones[0][1];
+  const right = props.blastzones[1][0];
+  const top = props.blastzones[1][1];
+  const lines = [];
+  for (let x = props.blastzones[0][0]; x < props.blastzones[1][0]; x += 5) {
+    lines.push([x, x, bottom, top]);
+  }
+  for (let y = props.blastzones[0][0]; y < props.blastzones[1][0]; y += 5) {
+    lines.push([left, right, y, y]);
+  }
   return (
-    <For each={lines()}>
-      {([x1, x2, y1, y2]) => (
+    <>
+      {lines.map(([x1, x2, y1, y2], index) => (
         <line
-          class="stroke-slippi-50 stroke-[0.1]"
+          key={index}
+          className="stroke-slippi-50 stroke-[0.1]"
           x1={x1}
           x2={x2}
           y1={y1}
           y2={y2}
         />
-      )}
-    </For>
+      ))}
+    </>
   );
 }

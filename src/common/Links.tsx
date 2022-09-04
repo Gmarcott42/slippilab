@@ -1,10 +1,10 @@
 export function Links() {
   return (
-    <div class="flex items-center justify-center gap-4">
+    <div className="flex items-center justify-center gap-4">
       <a
         target="_blank"
         rel="noopener noreferrer"
-        class="underline"
+        className="underline"
         href="https://github.com/frankborden/slippilab"
       >
         <svg
@@ -23,7 +23,7 @@ export function Links() {
       <a
         target="_blank"
         rel="noopener noreferrer"
-        class="underline"
+        className="underline"
         href="https://twitter.com/SlippiLab"
       >
         <svg
@@ -42,10 +42,10 @@ export function Links() {
       <a
         target="_blank"
         rel="noopener noreferrer"
-        class="h-6 w-6 underline"
+        className="h-6 w-6 underline"
         href="https://github.com/frankborden/slippilab/issues/new"
       >
-        <div class="material-icons w-6 text-3xl leading-6">report</div>
+        <div className="material-icons w-6 text-3xl leading-6">report</div>
       </a>
     </div>
   );

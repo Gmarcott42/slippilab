@@ -1,18 +1,12 @@
 import { fetchAnimations } from "~/viewer/animationCache";
 import { createDropzone } from "@solid-primitives/upload";
-import { Show } from "solid-js";
 import { Landing } from "~/Landing";
 import { filterFiles } from "~/common/util";
 import { ToastGroup } from "~/common/toaster";
 import "@thisbeyond/solid-select/style.css";
-import { createFileStore, FileStoreContext } from "~/state/fileStore";
+import { fileStore, load } from "~/state/fileStore";
 import { TopBar } from "~/TopBar";
 import { MainContent } from "~/MainContent";
-import {
-  createSelectionStore,
-  SelectionStoreContext,
-} from "~/state/selectionStore";
-import { createReplayStore, ReplayStoreContext } from "~/state/replayStore";
 import { downloadReplay } from "~/supabaseClient";
 
 export function App() {
@@ -22,16 +16,12 @@ export function App() {
   void fetchAnimations(0); // Falcon
   void fetchAnimations(9); // Marth
 
-  const fileStore = createFileStore();
-  const selectionStore = createSelectionStore(fileStore[0]);
-  const replayStore = createReplayStore(selectionStore[0], fileStore[0]);
-
   // Make the whole screen a dropzone
   const { setRef: dropzoneRef } = createDropzone({
     onDrop: async (uploads) => {
       const files = uploads.map((upload) => upload.file);
       const filteredFiles = await filterFiles(files);
-      return await fileStore[1].load(filteredFiles);
+      return await load(filteredFiles);
     },
   });
 
@@ -46,7 +36,7 @@ export function App() {
       void fetch(url)
         .then(async (response) => await response.blob())
         .then((blob) => new File([blob], url.split("/").at(-1) ?? "url.slp"))
-        .then(async (file) => await fileStore[1].load([file], startFrame));
+        .then(async (file) => await load([file], startFrame));
     } catch (e) {
       console.error("Error: could not load replay", url, e);
     }
@@ -54,7 +44,7 @@ export function App() {
     void downloadReplay(path).then(({ data, error }) => {
       if (data != null) {
         const file = new File([data], `${path}.slp`);
-        return fileStore[1].load([file], startFrame);
+        return load([file], startFrame);
       }
       if (error != null) {
         console.error("Error: could not load replay", error);
@@ -63,21 +53,19 @@ export function App() {
   }
 
   return (
-    <FileStoreContext.Provider value={fileStore}>
-      <SelectionStoreContext.Provider value={selectionStore}>
-        <ReplayStoreContext.Provider value={replayStore}>
-          <Show when={fileStore[0].files.length > 0} fallback={<Landing />}>
-            <div
-              class="flex flex-col md:h-screen md:w-screen"
-              ref={dropzoneRef}
-            >
-              <TopBar />
-              <MainContent />
-            </div>
-          </Show>
-          <ToastGroup />
-        </ReplayStoreContext.Provider>
-      </SelectionStoreContext.Provider>
-    </FileStoreContext.Provider>
+    <>
+      {fileStore.files.length > 0 ? (
+        <div
+          className="flex flex-col md:h-screen md:w-screen"
+          ref={dropzoneRef}
+        >
+          <TopBar />
+          <MainContent />
+        </div>
+      ) : (
+        <Landing />
+      )}
+      <ToastGroup />
+    </>
   );
 }

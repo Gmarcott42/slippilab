@@ -1,7 +1,9 @@
-import { render } from "solid-js/web";
+import { createRoot } from "react-dom/client";
+import { StrictMode } from "react";
 import { App } from "~/App";
 
-const root = document.querySelector("#root");
-if (root !== null) {
-  render(App, root);
-}
+createRoot(document.getElementById("root") as HTMLElement).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);

@@ -1,12 +1,6 @@
-import { Setter } from "solid-js";
-import {
-  Accessor,
-  createContext,
-  createMemo,
-  createSignal,
-  useContext,
-} from "solid-js";
-import { Portal } from "solid-js/web";
+import { ReactNode, useState } from "react";
+import { createPortal } from "react-dom";
+import { Setter, Accessor, createContext, useContext } from "solid-js";
 
 const DialogRefContext =
   createContext<
@@ -16,65 +10,68 @@ const DialogRefContext =
     ]
   >();
 
-export function Dialog(props: { onOpen?: () => void; children?: any }) {
-  let [dialogRef, setDialogRef] = createSignal<HTMLDialogElement | undefined>();
+export function Dialog({ children }: { children?: ReactNode }) {
+  let [dialogRef, setDialogRef] = useState<HTMLDialogElement | undefined>();
 
   return (
     <DialogRefContext.Provider value={[dialogRef, setDialogRef]}>
-      {props.children}
+      {children}
     </DialogRefContext.Provider>
   );
 }
 
-export function DialogTrigger(props: {
-  children?: any;
+export function DialogTrigger({
+  children,
+  onOpen,
+  className,
+}: {
+  children?: ReactNode;
   onOpen?: () => void;
-  class?: string;
+  className?: string;
 }) {
   const context = useContext(DialogRefContext);
-  const dialogRef = createMemo(() => context?.[0]);
+  const dialogRef = context?.[0];
   return (
     <div
-      class={props.class ?? ""}
+      className={className ?? ""}
       onClick={() => {
-        props.onOpen?.();
-        dialogRef?.()?.()?.showModal();
+        onOpen?.();
+        dialogRef?.()?.showModal();
       }}
     >
-      {props.children}
+      {children}
     </div>
   );
 }
 
-export function DialogContents(props: { children?: any }) {
+export function DialogContents({ children }: { children?: ReactNode }) {
   const context = useContext(DialogRefContext);
-  const dialogRef = createMemo(() => context?.[0]);
-  const setDialogRef = createMemo(() => context?.[1]);
-  return (
-    <Portal>
-      <dialog
-        ref={setDialogRef()}
-        class="flex flex-col gap-4 rounded-lg backdrop:bg-gray-500 backdrop:opacity-75 [&:not([open])>*]:hidden"
-        onClick={(e) => {
-          const rect = e.target.getBoundingClientRect();
-          const clickedInDialog =
-            rect.top <= e.clientY &&
-            e.clientY <= rect.top + rect.height &&
-            rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width;
-          if (clickedInDialog === false) {
-            e.target === dialogRef()?.() && dialogRef()?.()?.close();
-          }
-        }}
-      >
-        {props.children}
-      </dialog>
-    </Portal>
+  const dialogRef = context?.[0];
+  const setDialogRef = context?.[1];
+  return createPortal(
+    <dialog
+      ref={setDialogRef}
+      className="flex flex-col gap-4 rounded-lg backdrop:bg-gray-500 backdrop:opacity-75 [&:not([open])>*]:hidden"
+      onClick={(e) => {
+        const rect = e.target.getBoundingClientRect();
+        const clickedInDialog =
+          rect.top <= e.clientY &&
+          e.clientY <= rect.top + rect.height &&
+          rect.left <= e.clientX &&
+          e.clientX <= rect.left + rect.width;
+        if (clickedInDialog === false) {
+          e.target === dialogRef?.() && dialogRef?.()?.close();
+        }
+      }}
+    >
+      {children}
+    </dialog>,
+    document.body
   );
 }
 
-export function DialogClose(props: { children?: any }) {
+export function DialogClose({ children }: { children?: ReactNode }) {
   const context = useContext(DialogRefContext);
-  const dialogRef = createMemo(() => context?.[0]);
-  return <div onClick={() => dialogRef?.()?.()?.close()}>{props.children}</div>;
+  const dialogRef = context?.[0];
+  return <div onClick={() => dialogRef?.()?.close()}>{children}</div>;
 }

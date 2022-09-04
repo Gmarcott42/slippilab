@@ -1,25 +1,19 @@
 import { filter, map, pipe, prop } from "rambda";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  useContext,
-  ParentProps,
-} from "solid-js";
+import { ReactNode, useState } from "react";
+import { createEffect } from "solid-js";
 import { PlayerUpdate } from "~/common/types";
-import { ReplayStoreContext } from "~/state/replayStore";
+import { replayStore } from "~/state/replayStore";
 
-export function Camera(props: ParentProps) {
-  const [replayState] = useContext(ReplayStoreContext);
-  const [center, setCenter] = createSignal<[number, number] | undefined>();
-  const [scale, setScale] = createSignal<number | undefined>();
+export function Camera({ children }: { children?: ReactNode }) {
+  const [center, setCenter] = useState<[number, number] | undefined>();
+  const [scale, setScale] = useState<number | undefined>();
 
   createEffect(() => {
     const followSpeeds = [0.04, 0.04];
     const padding = [25, 25];
     const minimums = [100, 100];
 
-    const currentFrame = replayState.replayData!.frames[replayState.frame];
+    const currentFrame = replayStore.replayData!.frames[replayStore.frame];
     const focuses = pipe(
       filter((player: PlayerUpdate) => Boolean(player)),
       map((player: PlayerUpdate) => ({
@@ -46,18 +40,16 @@ export function Camera(props: ParentProps) {
     ]);
     setScale(
       (oldScaling) =>
-        replayState.zoom *
+        replayStore.zoom *
         smooth(oldScaling ?? 5, scaling, Math.max(...followSpeeds))
     );
   });
-  const transforms = createMemo(() =>
-    [
-      `scale(${scale() ?? 1})`,
-      `translate(${(center()?.[0] ?? 0) * -1}, ${(center()?.[1] ?? 0) * -1})`,
-    ].join(" ")
-  );
+  const transforms = [
+    `scale(${scale ?? 1})`,
+    `translate(${(center?.[0] ?? 0) * -1}, ${(center?.[1] ?? 0) * -1})`,
+  ].join(" ");
 
-  return <g transform={transforms()}>{props.children}</g>;
+  return <g transform={transforms}>{children}</g>;
 }
 
 function smooth(from: number, to: number, byPercent: number): number {

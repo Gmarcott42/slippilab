@@ -4,14 +4,14 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "esModuleInterop": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "paths": { "~/*": ["./src/*"] },
     "strict": true,
+    "noEmit": true,
     "skipLibCheck": true,
-    "target": "esnext",
+    "target": "ESNext",
     "types": ["vite/client"]
   }
 }

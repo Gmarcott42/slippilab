@@ -25,3 +25,14 @@ export async function unzip(zipFile: File): Promise<File[]> {
       )
   );
 }
+
+export function classNames(...classes: string[]): string {
+  return classes.join(" ");
+}
+
+export function classMap(obj: Record<string, boolean>): string {
+  return Object.entries(obj)
+    .filter(([c, v]) => v)
+    .map(([c]) => c)
+    .join(" ");
+}

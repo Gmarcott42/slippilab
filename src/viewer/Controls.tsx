@@ -1,27 +1,23 @@
-import { onCleanup, onMount, Show, useContext } from "solid-js";
-import { ReplayStoreContext } from "~/state/replayStore";
-import { SelectionStoreContext } from "~/state/selectionStore";
+import { onCleanup, onMount } from "solid-js";
+import {
+  replayStore,
+  adjust,
+  jump,
+  jumpPercent,
+  nextHighlight,
+  pause,
+  previousHighlight,
+  speedFast,
+  speedNormal,
+  speedSlow,
+  toggleDebug,
+  togglePause,
+  zoomIn,
+  zoomOut,
+} from "~/state/replayStore";
+import { nextFile, previousFile } from "~/state/selectionStore";
 
 export function Controls() {
-  const [_, { nextFile, previousFile }] = useContext(SelectionStoreContext);
-  const [
-    replayState,
-    {
-      adjust,
-      jump,
-      jumpPercent,
-      nextHighlight,
-      pause,
-      previousHighlight,
-      speedFast,
-      speedNormal,
-      speedSlow,
-      toggleDebug,
-      togglePause,
-      zoomIn,
-      zoomOut,
-    },
-  ] = useContext(ReplayStoreContext);
   onMount(() => {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -113,49 +109,46 @@ export function Controls() {
   let seekbarInput!: HTMLInputElement;
 
   return (
-    <div class="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
-      <Show
-        when={replayState.running}
-        fallback={
-          <div
-            class="material-icons cursor-pointer text-7xl md:text-5xl"
-            onClick={() => togglePause()}
-            aria-label="Resume playback"
-          >
-            play_arrow
-          </div>
-        }
-      >
+    <div className="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
+      {replayStore.running ? (
         <div
-          class="material-icons cursor-pointer text-7xl md:text-5xl"
+          className="material-icons cursor-pointer text-7xl md:text-5xl"
           onClick={() => togglePause()}
           aria-label="pause playback"
         >
           pause
         </div>
-      </Show>
-      <label for="seekbar" class="text-sm">
-        {replayState.isDebug ? replayState.frame - 123 : replayState.frame}
+      ) : (
+        <div
+          className="material-icons cursor-pointer text-7xl md:text-5xl"
+          onClick={() => togglePause()}
+          aria-label="Resume playback"
+        >
+          play_arrow
+        </div>
+      )}
+      <label htmlFor="seekbar" className="text-sm">
+        {replayStore.isDebug ? replayStore.frame - 123 : replayStore.frame}
       </label>
       <input
         id="seekbar"
-        class="flex-grow accent-slippi-500"
+        className="flex-grow accent-slippi-500"
         type="range"
         ref={seekbarInput}
-        value={replayState.frame}
-        max={replayState.replayData!.frames.length - 1}
+        value={replayStore.frame}
+        max={replayStore.replayData!.frames.length - 1}
         onInput={() => jump(seekbarInput.valueAsNumber)}
       />
-      <div class="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <div
-          class="material-icons cursor-pointer text-7xl md:text-4xl"
+          className="material-icons cursor-pointer text-7xl md:text-4xl"
           onClick={() => adjust(-120)}
           aria-label="Rewind 2 seconds"
         >
           history
         </div>
         <div
-          class="material-icons cursor-pointer text-7xl md:text-4xl"
+          className="material-icons cursor-pointer text-7xl md:text-4xl"
           onClick={() => {
             pause();
             adjust(-1);
@@ -165,7 +158,7 @@ export function Controls() {
           rotate_left
         </div>
         <div
-          class="material-icons cursor-pointer text-7xl md:text-4xl"
+          className="material-icons cursor-pointer text-7xl md:text-4xl"
           onClick={() => {
             pause();
             adjust(1);
@@ -175,7 +168,7 @@ export function Controls() {
           rotate_right
         </div>
         <div
-          class="material-icons cursor-pointer text-7xl md:text-4xl"
+          className="material-icons cursor-pointer text-7xl md:text-4xl"
           onClick={() => adjust(120)}
           aria-label="Skip ahead 2 seconds"
         >

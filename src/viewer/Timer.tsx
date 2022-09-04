@@ -1,8 +1,6 @@
-import { createMemo, useContext } from "solid-js";
-import { ReplayStoreContext } from "~/state/replayStore";
+import { replayStore } from "~/state/replayStore";
 
 export function Timer() {
-  const [replayState] = useContext(ReplayStoreContext);
   const meleeHundredths = [
     "00",
     "02",
@@ -65,27 +63,24 @@ export function Timer() {
     "98",
     "99",
   ];
-  const time = createMemo(() => {
-    const frames =
-      replayState.replayData!.settings.timerStart * 60 -
-      replayState.frame +
-      123;
-    const minutes = Math.floor(frames / (60 * 60))
-      .toString()
-      .padStart(2, "0");
-    const seconds = Math.floor((frames % (60 * 60)) / 60)
-      .toString()
-      .padStart(2, "0");
-    const hundredths = meleeHundredths[frames % 60];
-    return `${minutes}:${seconds}:${hundredths}`;
-  });
+  const frames =
+    replayStore.replayData!.settings.timerStart * 60 - replayStore.frame + 123;
+  const minutes = Math.floor(frames / (60 * 60))
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor((frames % (60 * 60)) / 60)
+    .toString()
+    .padStart(2, "0");
+  const hundredths = meleeHundredths[frames % 60];
+  const time = `${minutes}:${seconds}:${hundredths}`;
   return (
     <text
       style={{ font: "bold 15px sans-serif", transform: "scaleY(-1)" }}
       text-anchor="middle"
       y="-42%"
-      textContent={time()}
-      class="fill-slate-800"
-    />
+      className="fill-slate-800"
+    >
+      {time}
+    </text>
   );
 }

@@ -1,28 +1,22 @@
-import { createMemo, Show, useContext } from "solid-js";
-import { ReplayStoreContext } from "~/state/replayStore";
-import { SelectionStoreContext } from "~/state/selectionStore";
+import { replayStore } from "~/state/replayStore";
+import { selectionStore } from "~/state/selectionStore";
 
 export function NowPlaying() {
-  const [selectionState] = useContext(SelectionStoreContext);
-  const [replayState] = useContext(ReplayStoreContext);
-  const info = createMemo(() => {
-    return replayState.replayData === undefined ||
-      selectionState.selectedFileAndSettings === undefined
+  const info =
+    replayStore.replayData === undefined ||
+    selectionStore.selectedFileAndSettings === undefined
       ? {}
       : {
-          name: selectionState.selectedFileAndSettings[0].name,
+          name: selectionStore.selectedFileAndSettings[0].name,
           date: new Date(
-            replayState.replayData.settings.startTimestamp
+            replayStore.replayData.settings.startTimestamp
           ).toLocaleString(),
         };
-  });
   return (
     <>
-      <div class="flex items-center gap-4">
-        <div class="text-xl">{info().name}</div>
-        <Show when={info().date}>
-          <div class="text-xl">{info().date}</div>
-        </Show>
+      <div className="flex items-center gap-4">
+        <div className="text-xl">{info.name}</div>
+        {info.date && <div className="text-xl">{info.date}</div>}
       </div>
     </>
   );

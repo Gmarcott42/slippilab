@@ -1,4 +1,3 @@
-import { createSignal, Match, Show, Switch, useContext } from "solid-js";
 import { PrimaryButton, SecondaryButton } from "~/common/Button";
 import { SpinnerCircle } from "~/common/SpinnerCircle";
 import {
@@ -8,20 +7,20 @@ import {
   DialogTrigger,
 } from "~/common/Dialog";
 import { uploadReplay } from "~/supabaseClient";
-import { SelectionStoreContext } from "~/state/selectionStore";
+import { selectionStore } from "~/state/selectionStore";
+import { useState } from "react";
 
 export function UploadDialog() {
-  const [selectionState] = useContext(SelectionStoreContext);
-  const [state, setState] = createSignal<"not started" | "loading" | "done">(
+  const [state, setState] = useState<"not started" | "loading" | "done">(
     "not started"
   );
-  const [url, setUrl] = createSignal<string | undefined>();
-  const [error, setError] = createSignal<string | undefined>();
-  const [isUrlCopied, setIsUrlCopied] = createSignal(false);
+  const [url, setUrl] = useState<string | undefined>();
+  const [error, setError] = useState<string | undefined>();
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
 
   async function onUploadClicked() {
     setState("loading");
-    const [file] = selectionState.selectedFileAndSettings!;
+    const [file] = selectionStore.selectedFileAndSettings!;
     const { id, data, error } = await uploadReplay(file);
     if (data != null) {
       setUrl(`${window.location.origin}/${id}`);
@@ -35,46 +34,44 @@ export function UploadDialog() {
   function onOpen() {
     setState("not started");
     setIsUrlCopied(false);
-    setUrl();
-    setError();
+    setUrl(undefined);
+    setError(undefined);
   }
 
   return (
     <Dialog>
       <DialogTrigger onOpen={onOpen}>
-        <PrimaryButton class="text-md flex items-center gap-2">
-          <div class="hidden md:block">Upload</div>
-          <div class="material-icons">upload_file</div>
+        <PrimaryButton className="text-md flex items-center gap-2">
+          <div className="hidden md:block">Upload</div>
+          <div className="material-icons">upload_file</div>
         </PrimaryButton>
       </DialogTrigger>
       <DialogContents>
-        <h1 class="text-lg">Replay Upload</h1>
+        <h1 className="text-lg">Replay Upload</h1>
         <div>
-          <div class="flex w-96 items-center justify-center gap-2">
-            <Switch>
-              <Match when={state() === "not started"}>
-                <div class="flex flex-col items-center gap-3">
-                  <p class="text-sm">
-                    Upload {selectionState.selectedFileAndSettings?.[0].name} to
-                    share?
-                  </p>
-                  <PrimaryButton onClick={onUploadClicked}>
-                    Upload
-                  </PrimaryButton>
-                </div>
-              </Match>
-              <Match when={state() === "loading"}>
-                <div class="h-10 w-10">
-                  <SpinnerCircle />
-                </div>
-              </Match>
-              <Match when={state() === "done"}>
-                <Show when={url()} fallback={error()}>
-                  <code class="text-sm">{url()}</code>
+          <div className="flex w-96 items-center justify-center gap-2">
+            {state === "not started" && (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-sm">
+                  Upload {selectionStore.selectedFileAndSettings?.[0].name} to
+                  share?
+                </p>
+                <PrimaryButton onClick={onUploadClicked}>Upload</PrimaryButton>
+              </div>
+            )}
+            {state === "loading" && (
+              <div className="h-10 w-10">
+                <SpinnerCircle />
+              </div>
+            )}
+            {state === "done" &&
+              (url ? (
+                <>
+                  <code className="text-sm">{url}</code>
                   <div
-                    class="material-icons cursor-pointer rounded bg-slate-100 px-1 py-0 text-lg"
+                    className="material-icons cursor-pointer rounded bg-slate-100 px-1 py-0 text-lg"
                     onClick={() => {
-                      const link = url();
+                      const link = url;
                       if (link === undefined) return;
                       void navigator.clipboard.writeText(link);
                       setIsUrlCopied(true);
@@ -82,15 +79,14 @@ export function UploadDialog() {
                   >
                     content_copy
                   </div>
-                </Show>
-              </Match>
-            </Switch>
+                </>
+              ) : (
+                error
+              ))}
           </div>
-          <Show when={isUrlCopied()}>
-            <div class="text-center">Copied!</div>
-          </Show>
+          {isUrlCopied && <div className="text-center">Copied!</div>}
         </div>
-        <div class="flex justify-end">
+        <div className="flex justify-end">
           <DialogClose>
             <SecondaryButton>Close</SecondaryButton>
           </DialogClose>
