@@ -6,85 +6,85 @@ import { replayStore } from "~/state/replayStore";
 
 // Note: Most items coordinates and sizes are divided by 256 to convert them
 // from hitboxspace to worldspace.
-export function Item(props: { item: ItemUpdate }) {
-  const itemName = itemNamesById[props.item.typeId];
+export function Item({ item }: { item: ItemUpdate }) {
+  const itemName = itemNamesById[item.typeId];
   switch (itemName) {
     case "Needle(thrown)":
-      return <Needle item={props.item} />;
+      return <Needle item={item} />;
     case "Fox's Laser":
-      return <FoxLaser item={props.item} />;
+      return <FoxLaser item={item} />;
     case "Falco's Laser":
-      return <FalcoLaser item={props.item} />;
+      return <FalcoLaser item={item} />;
     case "Turnip":
-      return <Turnip item={props.item} />;
+      return <Turnip item={item} />;
     case "Yoshi's egg(thrown)":
-      return <YoshiEgg item={props.item} />;
+      return <YoshiEgg item={item} />;
     case "Luigi's fire":
-      return <LuigiFireball item={props.item} />;
+      return <LuigiFireball item={item} />;
     case "Mario's fire":
-      return <MarioFireball item={props.item} />;
+      return <MarioFireball item={item} />;
     case "Missile":
-      return <Missile item={props.item} />;
+      return <Missile item={item} />;
     case "Samus's bomb":
-      return <SamusBomb item={props.item} />;
+      return <SamusBomb item={item} />;
     case "Samus's chargeshot":
-      return <SamusChargeshot item={props.item} />;
+      return <SamusChargeshot item={item} />;
     case "Shyguy (Heiho)":
-      return <FlyGuy item={props.item} />;
+      return <FlyGuy item={item} />;
     default:
       return null;
   }
 }
 
-function SamusChargeshot(props: { item: ItemUpdate }) {
+function SamusChargeshot({ item }: { item: ItemUpdate }) {
   // charge levels go 0 to 7
   const hitboxesByChargeLevel = [300, 400, 500, 600, 700, 800, 900, 1200];
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
-        r={hitboxesByChargeLevel[props.item.chargeShotChargeLevel] / 256}
+        cx={item.xPosition}
+        cy={item.yPosition}
+        r={hitboxesByChargeLevel[item.chargeShotChargeLevel] / 256}
         fill="darkgray"
       />
     </>
   );
 }
 
-function SamusBomb(props: { item: ItemUpdate }) {
+function SamusBomb({ item }: { item: ItemUpdate }) {
   // states: 1 = falling, 3 = exploding
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
-        r={(props.item.state === 3 ? 1536 : 500) / 256}
+        cx={item.xPosition}
+        cy={item.yPosition}
+        r={(item.state === 3 ? 1536 : 500) / 256}
         fill="darkgray"
       />
     </>
   );
 }
 
-function Missile(props: { item: ItemUpdate }) {
+function Missile({ item }: { item: ItemUpdate }) {
   // samusMissileTypes: 0 = homing missile, 1 = smash missile
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
-        r={(props.item.samusMissileType === 0 ? 500 : 600) / 256}
+        cx={item.xPosition}
+        cy={item.yPosition}
+        r={(item.samusMissileType === 0 ? 500 : 600) / 256}
         fill="darkgray"
       />
     </>
   );
 }
 
-function MarioFireball(props: { item: ItemUpdate }) {
+function MarioFireball({ item }: { item: ItemUpdate }) {
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
+        cx={item.xPosition}
+        cy={item.yPosition}
         r={600 / 256}
         fill="darkgray"
       />
@@ -92,12 +92,12 @@ function MarioFireball(props: { item: ItemUpdate }) {
   );
 }
 
-function LuigiFireball(props: { item: ItemUpdate }) {
+function LuigiFireball({ item }: { item: ItemUpdate }) {
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
+        cx={item.xPosition}
+        cy={item.yPosition}
         r={500 / 256}
         fill="darkgray"
       />
@@ -105,57 +105,45 @@ function LuigiFireball(props: { item: ItemUpdate }) {
   );
 }
 
-function YoshiEgg(props: { item: ItemUpdate }) {
+function YoshiEgg({ item }: { item: ItemUpdate }) {
   // states: 0 = held, 1 = thrown, 2 = exploded
-  const ownerState = getOwner(props.item).state;
+  const ownerState = getOwner(item).state;
   return (
     <>
       <circle
-        cx={
-          props.item.state === 0 ? ownerState.xPosition : props.item.xPosition
-        }
-        cy={
-          props.item.state === 0
-            ? ownerState.yPosition + 8
-            : props.item.yPosition
-        }
-        r={props.item.state === 2 ? 2500 / 256 : 1000 / 256}
+        cx={item.state === 0 ? ownerState.xPosition : item.xPosition}
+        cy={item.state === 0 ? ownerState.yPosition + 8 : item.yPosition}
+        r={item.state === 2 ? 2500 / 256 : 1000 / 256}
         fill="darkgray"
-        opacity={props.item.state === 1 ? 1 : 0.5}
+        opacity={item.state === 1 ? 1 : 0.5}
       />
     </>
   );
 }
 
-function Turnip(props: { item: ItemUpdate }) {
+function Turnip({ item }: { item: ItemUpdate }) {
   // states: 0 = held, 1 = bouncing?, 2 = thrown
-  // face: props.item.peachTurnipFace
-  const ownerState = getOwner(props.item).state;
+  // face: item.peachTurnipFace
+  const ownerState = getOwner(item).state;
   return (
     <>
       <circle
-        cx={
-          props.item.state === 0 ? ownerState.xPosition : props.item.xPosition
-        }
-        cy={
-          props.item.state === 0
-            ? ownerState.yPosition + 8
-            : props.item.yPosition
-        }
+        cx={item.state === 0 ? ownerState.xPosition : item.xPosition}
+        cy={item.state === 0 ? ownerState.yPosition + 8 : item.yPosition}
         r={600 / 256}
         fill="darkgray"
-        opacity={props.item.state === 0 ? 0.5 : 1}
+        opacity={item.state === 0 ? 0.5 : 1}
       />
     </>
   );
 }
 
-function Needle(props: { item: ItemUpdate }) {
+function Needle({ item }: { item: ItemUpdate }) {
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
+        cx={item.xPosition}
+        cy={item.yPosition}
         r={500 / 256}
         fill="darkgray"
       />
@@ -163,35 +151,35 @@ function Needle(props: { item: ItemUpdate }) {
   );
 }
 
-function FoxLaser(props: { item: ItemUpdate }) {
+function FoxLaser({ item }: { item: ItemUpdate }) {
   // There is a 4th hitbox for the first frame only at -3600 (hitboxspace) with
   // size 400 / 256 that I am skipping.
   const hitboxOffsets = [-200, -933, -1666].map((x) => x / 256);
   const hitboxSize = 300 / 256;
   // Throws and deflected lasers are not straight horizontal
-  const direction = Math.atan2(props.item.yVelocity, props.item.xVelocity);
+  const direction = Math.atan2(item.yVelocity, item.xVelocity);
   const rotations = [Math.cos(direction), Math.sin(direction)];
   return (
     <>
       <line
         x1={
-          props.item.xPosition +
-          hitboxOffsets[0] * props.item.facingDirection * rotations[0]
+          item.xPosition +
+          hitboxOffsets[0] * item.facingDirection * rotations[0]
         }
         y1={
-          props.item.yPosition +
-          hitboxOffsets[0] * props.item.facingDirection * rotations[1]
+          item.yPosition +
+          hitboxOffsets[0] * item.facingDirection * rotations[1]
         }
         x2={
-          props.item.xPosition +
+          item.xPosition +
           hitboxOffsets[hitboxOffsets.length - 1] *
-            props.item.facingDirection *
+            item.facingDirection *
             rotations[0]
         }
         y2={
-          props.item.yPosition +
+          item.yPosition +
           hitboxOffsets[hitboxOffsets.length - 1] *
-            props.item.facingDirection *
+            item.facingDirection *
             rotations[1]
         }
         stroke="red"
@@ -200,12 +188,10 @@ function FoxLaser(props: { item: ItemUpdate }) {
         <circle
           key={index}
           cx={
-            props.item.xPosition +
-            hitboxOffset * props.item.facingDirection * rotations[0]
+            item.xPosition + hitboxOffset * item.facingDirection * rotations[0]
           }
           cy={
-            props.item.yPosition +
-            hitboxOffset * props.item.facingDirection * rotations[1]
+            item.yPosition + hitboxOffset * item.facingDirection * rotations[1]
           }
           r={hitboxSize}
           fill="red"
@@ -215,23 +201,23 @@ function FoxLaser(props: { item: ItemUpdate }) {
   );
 }
 
-function FalcoLaser(props: { item: ItemUpdate }) {
+function FalcoLaser({ item }: { item: ItemUpdate }) {
   const hitboxOffsets = [-200, -933, -1666, -2400].map((x) => x / 256);
   const hitboxSize = 300 / 256;
   // Throws and deflected lasers are not straight horizontal
-  const direction = Math.atan2(props.item.yVelocity, props.item.xVelocity);
+  const direction = Math.atan2(item.yVelocity, item.xVelocity);
   const rotations = [Math.cos(direction), Math.sin(direction)];
   return (
     <>
       <line
-        x1={props.item.xPosition + hitboxOffsets[0] * rotations[0]}
-        y1={props.item.yPosition + hitboxOffsets[0] * rotations[1]}
+        x1={item.xPosition + hitboxOffsets[0] * rotations[0]}
+        y1={item.yPosition + hitboxOffsets[0] * rotations[1]}
         x2={
-          props.item.xPosition +
+          item.xPosition +
           hitboxOffsets[hitboxOffsets.length - 1] * rotations[0]
         }
         y2={
-          props.item.yPosition +
+          item.yPosition +
           hitboxOffsets[hitboxOffsets.length - 1] * rotations[1]
         }
         stroke="red"
@@ -239,8 +225,8 @@ function FalcoLaser(props: { item: ItemUpdate }) {
       {hitboxOffsets.map((hitboxOffset, index) => (
         <circle
           key={index}
-          cx={props.item.xPosition + hitboxOffset * rotations[0]}
-          cy={props.item.yPosition + hitboxOffset * rotations[1]}
+          cx={item.xPosition + hitboxOffset * rotations[0]}
+          cy={item.yPosition + hitboxOffset * rotations[1]}
           r={hitboxSize}
           fill="red"
         />
@@ -249,12 +235,12 @@ function FalcoLaser(props: { item: ItemUpdate }) {
   );
 }
 
-function FlyGuy(props: { item: ItemUpdate }) {
+function FlyGuy({ item }: { item: ItemUpdate }) {
   return (
     <>
       <circle
-        cx={props.item.xPosition}
-        cy={props.item.yPosition}
+        cx={item.xPosition}
+        cy={item.yPosition}
         r={5 * 0.85}
         fill="#aa0000"
       />

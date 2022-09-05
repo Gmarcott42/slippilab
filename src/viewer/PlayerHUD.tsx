@@ -2,15 +2,15 @@ import { useSnapshot } from "valtio";
 import { characterNameByInternalId } from "~/common/ids";
 import { replayStore } from "~/state/replayStore";
 
-export function PlayerHUD(props: { player: number }) {
+export function PlayerHUD({ player }: { player: number }) {
   const { renderDatas, isDebug } = useSnapshot(replayStore);
   const renderData = renderDatas.find(
     (renderData) =>
-      renderData.playerSettings.playerIndex === props.player &&
+      renderData.playerSettings.playerIndex === player &&
       renderData.playerState.isNana === false
   );
   const position = {
-    x: -30 + 20 * props.player, // ports at: -30%, -10%, 10%, 30%
+    x: -30 + 20 * player, // ports at: -30%, -10%, 10%, 30%
     y: 40, // y% is flipped by css to make the text right-side up.
   };
   const name = renderData

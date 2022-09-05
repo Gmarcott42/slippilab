@@ -1,11 +1,10 @@
 import { useActor, useMachine, normalizeProps } from "@zag-js/react";
 import * as toast from "@zag-js/toast";
 import { createContext, ReactNode, useContext } from "react";
-import { createPortal } from "react-dom";
 import { WhiteButton } from "~/common/Button";
 
-function Toast(props: { actor: toast.Service }) {
-  const [state, send] = useActor(props.actor);
+function Toast({ actor }: { actor: toast.Service }) {
+  const [state, send] = useActor(actor);
   const api = toast.connect(state, send, normalizeProps);
 
   return (

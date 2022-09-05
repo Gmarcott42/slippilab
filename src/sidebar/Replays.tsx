@@ -77,7 +77,7 @@ export function Replays() {
   );
 }
 
-function GameInfo(props: { gameSettings: GameSettings }) {
+function GameInfo({ gameSettings }: { gameSettings: GameSettings }) {
   function playerString(player: PlayerSettings): string {
     const name = [player.displayName, player.connectCode, player.nametag].find(
       (s) => s?.length > 0
@@ -89,18 +89,18 @@ function GameInfo(props: { gameSettings: GameSettings }) {
   return (
     <>
       <div className="flex w-full items-center">
-        <StageBadge stageId={props.gameSettings.stageId} />
+        <StageBadge stageId={gameSettings.stageId} />
         <div className="flex flex-grow flex-col items-center">
-          {props.gameSettings.isTeams
+          {gameSettings.isTeams
             ? Object.values(
                 groupBy(
                   (p) => String(p.teamId),
-                  props.gameSettings.playerSettings.filter((s) => s)
+                  gameSettings.playerSettings.filter((s) => s)
                 )
               ).map((team, index) => (
                 <div key={index}>{team.map(playerString).join(" + ")}</div>
               ))
-            : props.gameSettings.playerSettings
+            : gameSettings.playerSettings
                 .filter((s) => s)
                 .map(playerString)
                 .join(" vs ")}

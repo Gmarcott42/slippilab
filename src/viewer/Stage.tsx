@@ -433,16 +433,16 @@ function PokemonStadium() {
     </>
   );
 }
-function Grid(props: { blastzones: number[][] }) {
-  const left = props.blastzones[0][0];
-  const bottom = props.blastzones[0][1];
-  const right = props.blastzones[1][0];
-  const top = props.blastzones[1][1];
+function Grid({ blastzones }: { blastzones: number[][] }) {
+  const left = blastzones[0][0];
+  const bottom = blastzones[0][1];
+  const right = blastzones[1][0];
+  const top = blastzones[1][1];
   const lines = [];
-  for (let x = props.blastzones[0][0]; x < props.blastzones[1][0]; x += 5) {
+  for (let x = blastzones[0][0]; x < blastzones[1][0]; x += 5) {
     lines.push([x, x, bottom, top]);
   }
-  for (let y = props.blastzones[0][0]; y < props.blastzones[1][0]; y += 5) {
+  for (let y = blastzones[0][0]; y < blastzones[1][0]; y += 5) {
     lines.push([left, right, y, y]);
   }
   return (

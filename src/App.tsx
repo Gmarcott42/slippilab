@@ -82,4 +82,5 @@ export function App() {
  * - accordion, replace zagjs with headless-ui
  * - toast, replace zagjs with something
  * - select, support custom nametags
+ * - parser progress
  */

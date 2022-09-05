@@ -6,7 +6,7 @@ import { filterFiles } from "~/common/util";
 import { load } from "~/state/fileStore";
 import { ChangeEvent, createRef } from "react";
 
-export function OpenMenu(props: { name: string }) {
+export function OpenMenu({ name }: { name: string }) {
   const [menuState, menuSend] = useMachine(
     menu.machine({ id: "1", "aria-label": "Open Replays" })
   );
@@ -33,7 +33,7 @@ export function OpenMenu(props: { name: string }) {
           {...menuApi.triggerProps}
           className="flex items-center gap-2"
         >
-          <div className="hidden md:block">{props.name}</div>
+          <div className="hidden md:block">{name}</div>
           <div className="material-icons" aria-label="Open File or Folder">
             folder_open
           </div>
