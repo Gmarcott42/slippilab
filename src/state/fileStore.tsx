@@ -2,7 +2,6 @@ import { proxy, ref, snapshot, subscribe } from "valtio";
 // import { ProgressCircle } from "~/common/ProgressCircle";
 // import { createToast, dismissToast } from "~/common/toaster";
 import { GameSettings } from "~/common/types";
-import { parseReplay } from "~/parser/parser";
 import { send } from "~/workerClient";
 
 export interface FileStoreState {

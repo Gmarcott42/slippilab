@@ -24,7 +24,11 @@ export function App() {
     const filteredFiles = await filterFiles(files);
     return await load(filteredFiles);
   }, []);
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    noClick: true,
+    noKeyboard: true,
+  });
 
   // load a file from query params if provided. Otherwise start playing the sample
   // match.
@@ -75,15 +79,7 @@ export function App() {
 
 /**
  * TODO:
- * - requestAnimationFrame, replace solid-primitive
- * - file dropzone, replace solid-primitive
  * - accordion, replace zagjs with headless-ui
- * - toast, replace zagjs with headless-ui?
+ * - toast, replace zagjs with something
  * - select, support custom nametags
- * - virtualized list, replace solid-virtual with react-virtual
- * - create-resource, replace with some state mgmt thingy
- * - remove solidjs reactivity, replace createEffect with vialto subscriptions
- * - rewrite components depending on solidjs reactivity semantics, rules of
- *   hooks, etc.
- * - check performance
  */

@@ -15,7 +15,7 @@ export function Players() {
             transform={renderData.transforms.join(" ")}
             d={renderData.path}
             fill={renderData.innerColor}
-            stroke-width={2}
+            strokeWidth={2}
             stroke={renderData.outerColor}
           />
           <Shield renderData={renderData as RenderData} />
@@ -26,10 +26,10 @@ export function Players() {
   );
 }
 
-function Shield(props: { renderData: RenderData }) {
+function Shield({ renderData }: { renderData: RenderData }) {
   const { replayData } = useSnapshot(replayStore);
   // [0,60]
-  const shieldHealth = props.renderData.playerState.shieldSize;
+  const shieldHealth = renderData.playerState.shieldSize;
   // [0,1]. If 0 is received, set to 1 because user may have released shield
   // during a Guard-related animation. As an example, a shield must stay active
   // for 8 frames minimum before it is dropped even if the player releases the
@@ -37,25 +37,22 @@ function Shield(props: { renderData: RenderData }) {
   // For GuardDamage the shield strength is fixed and ignores trigger updates,
   // so we must walk back to the first frame of stun and read trigger there.
   const triggerStrength =
-    props.renderData.animationName === "GuardDamage"
+    renderData.animationName === "GuardDamage"
       ? getPlayerOnFrame(
-          props.renderData.playerSettings.playerIndex,
-          getStartOfAction(
-            props.renderData.playerState,
-            replayData as ReplayData
-          ),
+          renderData.playerSettings.playerIndex,
+          getStartOfAction(renderData.playerState, replayData as ReplayData),
           replayData as ReplayData
         ).inputs.processed.anyTrigger
-      : props.renderData.playerInputs.processed.anyTrigger === 0
+      : renderData.playerInputs.processed.anyTrigger === 0
       ? 1
-      : props.renderData.playerInputs.processed.anyTrigger;
+      : renderData.playerInputs.processed.anyTrigger;
   // Formulas from https://www.ssbwiki.com/Shield#Shield_statistics
   const triggerStrengthMultiplier = 1 - (0.5 * (triggerStrength - 0.3)) / 0.7;
   const shieldSizeMultiplier =
     ((shieldHealth * triggerStrengthMultiplier) / 60) * 0.85 + 0.15;
   if (
     !["GuardOn", "Guard", "GuardReflect", "GuardDamage"].includes(
-      props.renderData.animationName
+      renderData.animationName
     )
   ) {
     return null;
@@ -64,47 +61,47 @@ function Shield(props: { renderData: RenderData }) {
     <circle
       // TODO: shield tilts
       cx={
-        props.renderData.playerState.xPosition +
-        props.renderData.characterData.shieldOffset[0] *
-          props.renderData.playerState.facingDirection
+        renderData.playerState.xPosition +
+        renderData.characterData.shieldOffset[0] *
+          renderData.playerState.facingDirection
       }
       cy={
-        props.renderData.playerState.yPosition +
-        props.renderData.characterData.shieldOffset[1]
+        renderData.playerState.yPosition +
+        renderData.characterData.shieldOffset[1]
       }
-      r={props.renderData.characterData.shieldSize * shieldSizeMultiplier}
-      fill={props.renderData.innerColor}
+      r={renderData.characterData.shieldSize * shieldSizeMultiplier}
+      fill={renderData.innerColor}
       opacity={0.6}
     />
   );
 }
 
-function Shine(props: { renderData: RenderData }) {
+function Shine({ renderData }: { renderData: RenderData }) {
   const characterName =
-    characterNameByExternalId[
-      props.renderData.playerSettings.externalCharacterId
-    ];
+    characterNameByExternalId[renderData.playerSettings.externalCharacterId];
   if (
-    !["Fox", "Falco"].includes(characterName) &&
-    (props.renderData.animationName.includes("SpecialLw") ||
-      props.renderData.animationName.includes("SpecialAirLw"))
+    !["Fox", "Falco"].includes(characterName) ||
+    !(
+      renderData.animationName.includes("SpecialLw") ||
+      renderData.animationName.includes("SpecialAirLw")
+    )
   ) {
     return null;
   }
   return (
     <Hexagon
-      x={props.renderData.playerState.xPosition}
+      x={renderData.playerState.xPosition}
       // TODO get true shine position, shieldY * 3/4 is a guess.
       y={
-        props.renderData.playerState.yPosition +
-        (props.renderData.characterData.shieldOffset[1] * 3) / 4
+        renderData.playerState.yPosition +
+        (renderData.characterData.shieldOffset[1] * 3) / 4
       }
       r={6}
     />
   );
 }
 
-function Hexagon(props: { x: number; y: number; r: number }) {
+function Hexagon({ x, y, r }: { x: number; y: number; r: number }) {
   const hexagonHole = 0.6;
   const sideX = Math.sin((2 * Math.PI) / 6);
   const sideY = 0.5;
@@ -117,16 +114,11 @@ function Hexagon(props: { x: number; y: number; r: number }) {
     [-sideX, sideY],
   ];
   const points = offsets
-    .map(([xOffset, yOffset]) =>
-      [props.r * xOffset + props.x, props.r * yOffset + props.y].join(",")
-    )
+    .map(([xOffset, yOffset]) => [r * xOffset + x, r * yOffset + y].join(","))
     .join(",");
   const maskPoints = offsets
     .map(([xOffset, yOffset]) =>
-      [
-        props.r * xOffset * hexagonHole + props.x,
-        props.r * yOffset * hexagonHole + props.y,
-      ].join(",")
+      [r * xOffset * hexagonHole + x, r * yOffset * hexagonHole + y].join(",")
     )
     .join(",");
   return (

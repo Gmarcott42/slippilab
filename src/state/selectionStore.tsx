@@ -9,7 +9,6 @@ import {
 } from "~/common/ids";
 import { groupBy, map, zip } from "rambda";
 import { fileStore } from "~/state/fileStore";
-import { parseReplay } from "~/parser/parser";
 
 export type Filter =
   | { type: "character"; label: ExternalCharacterName }
@@ -79,13 +78,6 @@ subscribeKey(fileStore, "files", (f) => {
   selectionStore.selectedFileAndSettings = undefined;
 });
 
-// createEffect(
-//   on(
-//     () => fileStore.files,
-//     () => (selectionStore.selectedFileAndSettings = undefined)
-//   )
-// );
-
 // Update filter results if files, gameSettings, or filters change
 subscribeKey(fileStore, "files", (f) => {
   const { files, gameSettings } = snapshot(fileStore);
@@ -123,16 +115,6 @@ subscribeKey(selectionStore, "filters", (f) => {
     filters as Filter[]
   );
 });
-// createEffect(() => {
-//   const filesWithSettings = zip(fileStore.files, fileStore.gameSettings) as [
-//     File,
-//     GameSettings
-//   ][];
-//   selectionStore.filteredFilesAndSettings = applyFilters(
-//     filesWithSettings,
-//     selectionStore.filters
-//   );
-// });
 
 // ???
 subscribeKey(selectionStore, "filteredFilesAndSettings", (ffas) => {
@@ -148,16 +130,6 @@ subscribeKey(selectionStore, "filteredFilesAndSettings", (ffas) => {
     ];
   }
 });
-
-// createEffect(() => {
-//   if (
-//     selectionStore.filteredFilesAndSettings.length > 0 &&
-//     selectionStore.selectedFileAndSettings === undefined
-//   ) {
-//     selectionStore.selectedFileAndSettings =
-//       selectionStore.filteredFilesAndSettings[0];
-//   }
-// });
 
 function applyFilters(
   filesWithSettings: [File, GameSettings][],

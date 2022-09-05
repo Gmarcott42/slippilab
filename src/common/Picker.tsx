@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { classMap, classNames } from "~/common/util";
-import { createVirtualizer } from "~/common/virtual";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export function Picker<T>(props: {
   items: T[];
@@ -9,27 +9,27 @@ export function Picker<T>(props: {
   selected: (item: T, index: number) => boolean;
   estimateSize: (item: T, index: number) => number;
 }) {
-  let scrollParentRef: HTMLDivElement | undefined;
+  const parentRef = useRef<HTMLDivElement>(null);
 
-  const virtualizer = createVirtualizer({
+  const virtualizer = useVirtualizer({
     get count() {
       return props.items.length;
     },
-    getScrollElement: () => scrollParentRef,
+    getScrollElement: () => parentRef.current,
     estimateSize: (i) => props.estimateSize(props.items[i], i),
     overscan: 5,
   });
 
   return (
     <>
-      <div ref={scrollParentRef} className="w-full overflow-auto">
+      <div ref={parentRef} className="w-full overflow-auto">
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}
         >
-          {virtualizer.getVirtualItems().map((item, index) => (
+          {virtualizer.getVirtualItems().map((item) => (
             <div
-              key={index}
+              key={item.index}
               role="button"
               className={classNames(
                 "absolute top-0 left-0 w-full overflow-hidden whitespace-nowrap border p-1 hover:bg-slate-100",

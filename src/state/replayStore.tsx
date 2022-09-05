@@ -1,12 +1,7 @@
-import { proxy, snapshot, subscribe } from "valtio";
+import { proxy, snapshot } from "valtio";
 import { subscribeKey } from "valtio/utils";
-import { map, max, modulo, times, update } from "rambda";
-// import { createResource } from "solid-js";
-import {
-  actionNameById,
-  characterNameByExternalId,
-  characterNameByInternalId,
-} from "~/common/ids";
+import { map, max, modulo } from "rambda";
+import { actionNameById, characterNameByInternalId } from "~/common/ids";
 import {
   PlayerInputs,
   PlayerSettings,
@@ -203,53 +198,17 @@ subscribeKey(selectionStore, "selectedFileAndSettings", async (sfas) => {
   }
 });
 
-// times(
-//   (playerIndex) =>
-//     createResource(
-//       () => {
-//         const replay = replayStore.replayData;
-//         if (replay === undefined) {
-//           return undefined;
-//         }
-//         const playerSettings = replay.settings.playerSettings[playerIndex];
-//         if (playerSettings === undefined) {
-//           return undefined;
-//         }
-//         const playerUpdate =
-//           replay.frames[replayStore.frame].players[playerIndex];
-//         if (playerUpdate === undefined) {
-//           return playerSettings.externalCharacterId;
-//         }
-//         if (
-//           playerUpdate.state.internalCharacterId ===
-//           characterNameByInternalId.indexOf("Zelda")
-//         ) {
-//           return characterNameByExternalId.indexOf("Zelda");
-//         }
-//         if (
-//           playerUpdate.state.internalCharacterId ===
-//           characterNameByInternalId.indexOf("Sheik")
-//         ) {
-//           return characterNameByExternalId.indexOf("Sheik");
-//         }
-//         return playerSettings.externalCharacterId;
-//       },
-//       (id) => (id === undefined ? undefined : fetchAnimations(id))
-//     ),
-//   4
-// ).forEach(([dataSignal], playerIndex) =>
-//   createEffect(
-//     () =>
-//       // I can't use the obvious setReplayState("animations", playerIndex, dataSignal())
-//       // because it will merge into the previous animations data object,
-//       // essentially overwriting the previous characters animation data forever
-//       (replayStore.animations = update(
-//         playerIndex,
-//         dataSignal(),
-//         replayStore.animations
-//       ))
-//   )
-// );
+subscribeKey(replayStore, "replayData", async () => {
+  if (!replayStore.replayData) {
+    return;
+  }
+  // TODO: Zelda/Sheik
+  replayStore.animations = await Promise.all(
+    replayStore.replayData.settings.playerSettings.map((playerSettings) =>
+      fetchAnimations(playerSettings.externalCharacterId)
+    )
+  );
+});
 
 subscribeKey(replayStore, "frame", () => {
   if (replayStore.replayData === undefined) {

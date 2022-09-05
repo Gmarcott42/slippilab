@@ -42,7 +42,7 @@ TODO: write this.
 
 ## Development
 
-The site is a Vite app primarily using SolidJS and Tailwind.
+The site is a Vite app primarily using React and Tailwind.
 
 Local development:
 
