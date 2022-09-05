@@ -4,7 +4,7 @@ import { Highlight } from "~/search/search";
 import { replayStore, selectHighlight } from "~/state/replayStore";
 import * as accordion from "@zag-js/accordion";
 import { normalizeProps, useMachine } from "@zag-js/react";
-import { classMap, classNames } from "~/common/util";
+import { classMap, classNames, newId } from "~/common/util";
 
 export function Clips() {
   const data = Object.keys(replayStore.highlights).map((name) => ({
@@ -29,7 +29,11 @@ export function Clips() {
     ),
   }));
   const [state, send] = useMachine(
-    accordion.machine({ id: "1", multiple: true, collapsible: true })
+    accordion.machine({
+      id: newId("accordion-"),
+      multiple: true,
+      collapsible: true,
+    })
   );
   const api = accordion.connect(state, send, normalizeProps);
 

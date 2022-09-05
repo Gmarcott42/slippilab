@@ -36,3 +36,8 @@ export function classMap(obj: Record<string, boolean>): string {
     .map(([c]) => c)
     .join(" ");
 }
+
+let nextId = 0;
+export function newId(prefix: string): string {
+  return `${prefix}${nextId++}`;
+}

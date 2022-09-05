@@ -2,13 +2,15 @@ import * as menu from "@zag-js/menu";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import { loadFromSupabase } from "~/stateUtil";
 import { PrimaryButton } from "~/common/Button";
-import { filterFiles } from "~/common/util";
+import { filterFiles, newId } from "~/common/util";
 import { load } from "~/state/fileStore";
 import { ChangeEvent, createRef } from "react";
+import { useToast } from "~/common/toaster";
 
 export function OpenMenu({ name }: { name: string }) {
+  const toaster = useToast();
   const [menuState, menuSend] = useMachine(
-    menu.machine({ id: "1", "aria-label": "Open Replays" })
+    menu.machine({ id: newId("menu-"), "aria-label": "Open Replays" })
   );
   const menuApi = menu.connect(menuState, menuSend, normalizeProps);
 
@@ -23,7 +25,7 @@ export function OpenMenu({ name }: { name: string }) {
     }
     const files = Array.from(e.target.files);
     const filteredFiles = await filterFiles(files);
-    return await load(filteredFiles);
+    return await load(filteredFiles, undefined, toaster);
   }
 
   return (
@@ -51,7 +53,9 @@ export function OpenMenu({ name }: { name: string }) {
                   folderInput.current?.click();
                   break;
                 case "demo":
-                  loadFromSupabase("sample", load);
+                  loadFromSupabase("sample", (files) =>
+                    load(files, undefined, toaster)
+                  );
                   break;
               }
             }}

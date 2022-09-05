@@ -2,6 +2,7 @@ import { useActor, useMachine, normalizeProps } from "@zag-js/react";
 import * as toast from "@zag-js/toast";
 import { createContext, ReactNode, useContext } from "react";
 import { WhiteButton } from "~/common/Button";
+import { newId } from "~/common/util";
 
 function Toast({ actor }: { actor: toast.Service }) {
   const [state, send] = useActor(actor);
@@ -26,16 +27,18 @@ function Toast({ actor }: { actor: toast.Service }) {
   );
 }
 
-const ToastContext = createContext<typeof toast.group.connect | undefined>(
-  undefined
-);
+const ToastContext = createContext<
+  ReturnType<typeof toast.group.connect> | undefined
+>(undefined);
 
 export function useToast() {
   return useContext(ToastContext);
 }
 
 export function ToastProvider({ children }: { children?: ReactNode }) {
-  const [state, send] = useMachine(toast.group.machine({ id: "1" }));
+  const [state, send] = useMachine(
+    toast.group.machine({ id: newId("toast-") })
+  );
   const api = toast.group.connect(state, send, normalizeProps);
   return (
     // @ts-ignore: zag doesn't have their types together yet I think
