@@ -8,8 +8,6 @@
     "@shelacek/ubjson": "^1.1.1",
     "@supabase/supabase-js": "^1.35.6",
     "@tanstack/react-virtual": "^3.0.0-beta.18",
-    "@zag-js/accordion": "^0.1.13",
-    "@zag-js/menu": "^0.1.14",
     "@zag-js/react": "^0.1.16",
     "@zag-js/toast": "^0.1.14",
     "@zip.js/zip.js": "^2.6.23",

@@ -82,6 +82,5 @@ export function App() {
 /**
  * TODO:
  * - toast, replace zagjs with something
- * - parser progress
  * - select, support custom nametags
  */
