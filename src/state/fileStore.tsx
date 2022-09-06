@@ -1,4 +1,4 @@
-import { proxy, ref } from "valtio";
+import { proxy, ref, useSnapshot } from "valtio";
 import { ProgressCircle } from "~/common/ProgressCircle";
 import { useToast } from "~/common/toaster";
 import { GameSettings } from "~/common/types";
@@ -26,19 +26,19 @@ export async function load(
   fileStore.urlStartFrame = startFrame;
   const progressToast = toaster?.create({
     title: "Parsing files",
-    duration: 999999,
-    render: () => (
-      <div className="flex items-center gap-3">
-        <ProgressCircle
-          percent={(fileStore.parseProgress * 100) / files.length}
-        />
-        {fileStore.parseProgress}/{files.length}
-      </div>
-    ),
+    duration: 5000,
+    render: () => {
+      const { parseProgress } = useSnapshot(fileStore);
+      return (
+        <div className="flex items-center gap-3">
+          <ProgressCircle percent={(parseProgress * 100) / files.length} />
+          {parseProgress}/{files.length}
+        </div>
+      );
+    },
     placement: "top-end",
   });
 
-  console.log(progressToast);
   const {
     goodFilesAndSettings,
     skipCount,
@@ -54,7 +54,7 @@ export async function load(
   // use 'ref' to tell valtio not to proxy the File object. It breaks everything
   fileStore.files = goodFilesAndSettings.map(([file]) => ref(file));
 
-  toaster?.dismiss(progressToast);
+  toaster?.remove(progressToast);
   if (failedFilenames.length > 0) {
     toaster?.create({
       title: `Failed to parse ${failedFilenames.length} file(s)`,

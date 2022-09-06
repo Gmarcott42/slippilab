@@ -1,19 +1,12 @@
-import * as menu from "@zag-js/menu";
-import { normalizeProps, useMachine } from "@zag-js/react";
 import { loadFromSupabase } from "~/stateUtil";
-import { PrimaryButton } from "~/common/Button";
-import { filterFiles, newId } from "~/common/util";
+import { filterFiles } from "~/common/util";
 import { load } from "~/state/fileStore";
 import { ChangeEvent, createRef } from "react";
 import { useToast } from "~/common/toaster";
+import { Menu } from "@headlessui/react";
 
 export function OpenMenu({ name }: { name: string }) {
   const toaster = useToast();
-  const [menuState, menuSend] = useMachine(
-    menu.machine({ id: newId("menu-"), "aria-label": "Open Replays" })
-  );
-  const menuApi = menu.connect(menuState, menuSend, normalizeProps);
-
   let fileInput = createRef<HTMLInputElement>();
   let folderInput = createRef<HTMLInputElement>();
 
@@ -30,57 +23,44 @@ export function OpenMenu({ name }: { name: string }) {
 
   return (
     <>
-      <div>
-        <PrimaryButton
-          {...menuApi.triggerProps}
-          className="flex items-center gap-2"
-        >
+      <Menu as="div" className="relative">
+        <Menu.Button className="flex w-fit items-center gap-2 rounded-md border border-transparent bg-slippi-400 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slippi-500 focus:outline-none focus:ring-2 focus:ring-slippi-500 focus:ring-offset-2">
           <div className="hidden md:block">{name}</div>
           <div className="material-icons" aria-label="Open File or Folder">
             folder_open
           </div>
-        </PrimaryButton>
-        <div {...menuApi.positionerProps} className="z-10 bg-white opacity-100">
-          <ul
-            {...menuApi.contentProps}
-            className="flex flex-col border border-slate-300"
-            onClick={(e) => {
-              switch ((e.target as HTMLUListElement).id) {
-                case "file":
-                  fileInput.current?.click();
-                  break;
-                case "folder":
-                  folderInput.current?.click();
-                  break;
-                case "demo":
-                  loadFromSupabase("sample", (files) =>
-                    load(files, undefined, toaster)
-                  );
-                  break;
-              }
-            }}
+        </Menu.Button>
+        <Menu.Items
+          as={"ul"}
+          className="absolute left-0 z-10 w-max border bg-white text-black"
+        >
+          <Menu.Item
+            as={"li"}
+            className="cursor-pointer py-2 px-4 hover:bg-slate-200"
+            onClick={() => fileInput.current?.click()}
           >
-            <li
-              {...menuApi.getItemProps({ id: "file" })}
-              className="w-full cursor-pointer py-2 px-4 hover:bg-slate-200"
-            >
-              Open File(s)
-            </li>
-            <li
-              {...menuApi.getItemProps({ id: "folder" })}
-              className="w-full cursor-pointer py-2 px-4 hover:bg-slate-200"
-            >
-              Open Folder
-            </li>
-            <li
-              {...menuApi.getItemProps({ id: "demo" })}
-              className="w-full cursor-pointer py-2 px-4 hover:bg-slate-200"
-            >
-              Load Demo
-            </li>
-          </ul>
-        </div>
-      </div>
+            Open File(s)
+          </Menu.Item>
+          <Menu.Item
+            as={"li"}
+            className="cursor-pointer py-2 px-4 hover:bg-slate-200"
+            onClick={() => folderInput.current?.click()}
+          >
+            Open Folder
+          </Menu.Item>
+          <Menu.Item
+            as={"li"}
+            className="cursor-pointer py-2 px-4 hover:bg-slate-200"
+            onClick={() =>
+              loadFromSupabase("sample", (files) =>
+                load(files, undefined, toaster)
+              )
+            }
+          >
+            Load Demo
+          </Menu.Item>
+        </Menu.Items>
+      </Menu>
       <input
         className="hidden"
         type="file"
@@ -92,8 +72,8 @@ export function OpenMenu({ name }: { name: string }) {
       <input
         className="hidden"
         type="file"
-        // @ts-expect-error folder input is not standard, but is supported by all
-        // modern browsers
+        // @ts-expect-error folder input is not standard, but is supported by
+        // all modern browsers
         webkitdirectory="true"
         ref={folderInput}
         onChange={onFileSelected}
