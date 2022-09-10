@@ -63,8 +63,8 @@ function HighlightRow({
     <>
       <div
         className={classNames(
-          "flex w-full cursor-pointer items-center whitespace-nowrap border p-1 hover:bg-slate-100",
-          classMap({ "bg-slate-200 hover:bg-slate-300": selected })
+          "flex w-full cursor-pointer items-center whitespace-nowrap border p-1 hover:bg-slippi-50",
+          classMap({ "bg-slippi-100 hover:bg-slippi-200": selected })
         )}
         onClick={() => selectHighlight(nameAndHighlight)}
       >

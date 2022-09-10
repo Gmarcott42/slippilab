@@ -203,10 +203,8 @@ function FilterResults() {
         <GameInfo gameSettings={gameSettings} />
       )}
       onClick={(fileAndSettings) => select(fileAndSettings)}
-      selected={([file, gameSettings]) =>
-        selectedFileAndSettings?.[0] === file &&
-        selectedFileAndSettings?.[1] === gameSettings
-      }
+      // file is not proxied in the store so it is ok to compare
+      selected={([file]) => selectedFileAndSettings?.[0] === file}
       estimateSize={([file, gameSettings]) => (gameSettings.isTeams ? 56 : 32)}
     />
   );

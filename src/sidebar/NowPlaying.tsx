@@ -15,8 +15,10 @@ export function NowPlaying() {
   return (
     <>
       <div className="flex items-center gap-4">
-        <div className="text-xl">{info.name}</div>
-        {info.date && <div className="text-xl">{info.date}</div>}
+        <div className="whitespace-nowrap text-xl">{info.name}</div>
+        {info.date && (
+          <div className="whitespace-nowrap text-xl">{info.date}</div>
+        )}
       </div>
     </>
   );

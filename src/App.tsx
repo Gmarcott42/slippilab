@@ -82,4 +82,5 @@ export function App() {
 /**
  * TODO:
  * - toast doesn't go away
+ * - sometimes stutters
  */

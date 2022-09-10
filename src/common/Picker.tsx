@@ -41,9 +41,9 @@ export function Picker<T>({
               key={item.index}
               role="button"
               className={classNames(
-                "absolute top-0 left-0 w-full overflow-hidden whitespace-nowrap border p-1 hover:bg-slate-100",
+                "absolute top-0 left-0 w-full overflow-hidden whitespace-nowrap border p-1 hover:bg-slippi-50",
                 classMap({
-                  "bg-slate-200 hover:bg-slate-300": selected(
+                  "bg-slippi-100 hover:bg-slippi-200": selected(
                     items[item.index],
                     item.index
                   ),
