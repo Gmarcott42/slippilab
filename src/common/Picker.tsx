@@ -23,12 +23,15 @@ export function Picker<T>({
     },
     getScrollElement: () => parentRef.current,
     estimateSize: (i) => estimateSize(items[i], i),
-    overscan: 5,
+    overscan: 50,
   });
 
   return (
     <>
-      <div ref={parentRef} className="w-full overflow-auto">
+      <div
+        ref={parentRef}
+        className="w-full overflow-auto rounded-md border border-gray-300"
+      >
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}

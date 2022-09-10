@@ -364,6 +364,7 @@ function FountainOfDreams() {
         <polyline
           key={index}
           points={points.join(" ")}
+          strokeDasharray="2,4"
           className="stroke-slate-800"
         />
       ))}

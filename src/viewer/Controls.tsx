@@ -112,23 +112,39 @@ export function Controls() {
 
   return (
     <div className="flex flex-wrap items-center justify-evenly gap-4 rounded-lg border pl-2 pr-4 text-slate-800">
-      {running ? (
+      <div className="flex">
         <div
           className="material-icons cursor-pointer text-7xl md:text-5xl"
-          onClick={() => togglePause()}
-          aria-label="pause playback"
+          onClick={() => previousFile()}
+          aria-label="previous file"
         >
-          pause
+          skip_previous
         </div>
-      ) : (
+        {running ? (
+          <div
+            className="material-icons cursor-pointer text-7xl md:text-5xl"
+            onClick={() => togglePause()}
+            aria-label="pause playback"
+          >
+            pause
+          </div>
+        ) : (
+          <div
+            className="material-icons cursor-pointer text-7xl md:text-5xl"
+            onClick={() => togglePause()}
+            aria-label="Resume playback"
+          >
+            play_arrow
+          </div>
+        )}
         <div
           className="material-icons cursor-pointer text-7xl md:text-5xl"
-          onClick={() => togglePause()}
-          aria-label="Resume playback"
+          onClick={() => nextFile()}
+          aria-label="next file"
         >
-          play_arrow
+          skip_next
         </div>
-      )}
+      </div>
       <label htmlFor="seekbar" className="text-sm">
         {isDebug ? frame - 123 : frame}
       </label>

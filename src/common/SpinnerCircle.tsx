@@ -6,8 +6,7 @@ export function SpinnerCircle() {
         className="animate-spin fill-transparent stroke-slate-400"
         strokeDasharray="100"
         strokeDashoffset={44}
-        stroke-linecap="round"
-        // @ts-ignore
+        strokeLinecap="round"
         pathLength="100"
       />
     </svg>

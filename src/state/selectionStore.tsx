@@ -11,9 +11,15 @@ import { groupBy, map, zip } from "rambda";
 import { fileStore } from "~/state/fileStore";
 
 export type Filter =
-  | { type: "character"; label: ExternalCharacterName }
-  | { type: "stage"; label: ExternalStageName }
-  | { type: "codeOrName"; label: string };
+  | {
+      type: "character";
+      label: ExternalCharacterName;
+      value: ExternalCharacterName;
+    }
+  | { type: "stage"; label: ExternalStageName; value: ExternalStageName }
+  | { type: "connectCode"; label: string; value: string }
+  | { type: "displayName"; label: string; value: string }
+  | { type: "nametag"; label: string; value: string };
 
 export interface SelectionStoreState {
   filters: Filter[];
@@ -26,8 +32,14 @@ export const selectionStore: SelectionStoreState = proxy({
   filteredFilesAndSettings: [],
 });
 
-export function setFilters(filters: Filter[]) {
-  selectionStore.filters = filters;
+export function addFilter(filter: Filter) {
+  selectionStore.filters = [...selectionStore.filters, filter];
+}
+
+export function removeFilter(index: number) {
+  const newFilters = [...selectionStore.filters];
+  newFilters.splice(index, 1);
+  selectionStore.filters = newFilters;
 }
 
 export function select(fileAndSettings: [File, GameSettings]) {
@@ -74,12 +86,12 @@ export function previousFile() {
   }
 }
 
-subscribeKey(fileStore, "files", (f) => {
+subscribeKey(fileStore, "files", () => {
   selectionStore.selectedFileAndSettings = undefined;
 });
 
 // Update filter results if files, gameSettings, or filters change
-subscribeKey(fileStore, "files", (f) => {
+subscribeKey(fileStore, "files", () => {
   const { files, gameSettings } = snapshot(fileStore);
   const { filters } = snapshot(selectionStore);
   const filesWithSettings = zip(
@@ -91,7 +103,7 @@ subscribeKey(fileStore, "files", (f) => {
     filters as Filter[]
   );
 });
-subscribeKey(fileStore, "gameSettings", (g) => {
+subscribeKey(fileStore, "gameSettings", () => {
   const { files, gameSettings } = snapshot(fileStore);
   const { filters } = snapshot(selectionStore);
   const filesWithSettings = zip(
@@ -103,7 +115,7 @@ subscribeKey(fileStore, "gameSettings", (g) => {
     filters as Filter[]
   );
 });
-subscribeKey(selectionStore, "filters", (f) => {
+subscribeKey(selectionStore, "filters", () => {
   const { files, gameSettings } = snapshot(fileStore);
   const { filters } = snapshot(selectionStore);
   const filesWithSettings = zip(
@@ -117,7 +129,7 @@ subscribeKey(selectionStore, "filters", (f) => {
 });
 
 // ???
-subscribeKey(selectionStore, "filteredFilesAndSettings", (ffas) => {
+subscribeKey(selectionStore, "filteredFilesAndSettings", () => {
   const { filteredFilesAndSettings, selectedFileAndSettings } =
     snapshot(selectionStore);
   if (
@@ -145,8 +157,14 @@ function applyFilters(
   const stagesAllowed = filters
     .filter((filter) => filter.type === "stage")
     .map((filter) => filter.label);
-  const namesNeeded = filters
-    .filter((filter) => filter.type === "codeOrName")
+  const displayNamesNeeded = filters
+    .filter((filter) => filter.type === "displayName")
+    .map((filter) => filter.label);
+  const connectCodesNeeded = filters
+    .filter((filter) => filter.type === "connectCode")
+    .map((filter) => filter.label);
+  const nametagsNeeded = filters
+    .filter((filter) => filter.type === "nametag")
     .map((filter) => filter.label);
   return filesWithSettings.filter(([file, gameSettings]) => {
     const areCharactersSatisfied = Object.entries(charactersNeeded).every(
@@ -158,16 +176,28 @@ function applyFilters(
     const stagePass =
       stagesAllowed.length === 0 ||
       stagesAllowed.includes(stageNameByExternalId[gameSettings.stageId]);
-    const areNamesSatisfied = namesNeeded.every((name) =>
-      gameSettings.playerSettings.some((p) =>
-        [
-          p.connectCode?.toLowerCase(),
-          p.displayName?.toLowerCase(),
-          p.nametag?.toLowerCase(),
-        ].includes(name.toLowerCase())
+    const areDisplayNamesSatisfied = displayNamesNeeded.every((displayName) =>
+      gameSettings.playerSettings.some(
+        (p) => p.displayName?.toLowerCase() === displayName.toLowerCase()
       )
     );
-    return stagePass && areCharactersSatisfied && areNamesSatisfied;
+    const areConnectCodesSatisfied = connectCodesNeeded.every((connectCode) =>
+      gameSettings.playerSettings.some(
+        (p) => p.connectCode?.toLowerCase() === connectCode.toLowerCase()
+      )
+    );
+    const areNametagsSatisfied = nametagsNeeded.every((name) =>
+      gameSettings.playerSettings.some(
+        (p) => p.nametag?.toLowerCase() === name.toLowerCase()
+      )
+    );
+    return (
+      stagePass &&
+      areCharactersSatisfied &&
+      areDisplayNamesSatisfied &&
+      areConnectCodesSatisfied &&
+      areNametagsSatisfied
+    );
   });
 }
 

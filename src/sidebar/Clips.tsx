@@ -10,8 +10,8 @@ export function Clips() {
 
   return (
     <div>
-      {Object.entries(highlights).map(([type, entries]) => (
-        <Disclosure>
+      {Object.entries(highlights).map(([type, entries], index) => (
+        <Disclosure key={index}>
           {({ open }) => (
             <>
               <Disclosure.Button
@@ -31,8 +31,11 @@ export function Clips() {
               </Disclosure.Button>
               <Disclosure.Panel>
                 <ol>
-                  {entries.map((entry) => (
-                    <HighlightRow nameAndHighlight={[type, entry]} />
+                  {entries.map((entry, index) => (
+                    <HighlightRow
+                      key={index}
+                      nameAndHighlight={[type, entry]}
+                    />
                   ))}
                 </ol>
               </Disclosure.Panel>

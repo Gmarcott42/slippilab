@@ -81,6 +81,5 @@ export function App() {
 
 /**
  * TODO:
- * - toast, replace zagjs with something
- * - select, support custom nametags
+ * - toast doesn't go away
  */
