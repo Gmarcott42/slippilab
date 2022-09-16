@@ -5,7 +5,8 @@ import { generateId } from "zoo-ids";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient('http://127.0.0.1:5173/', '12345');
 
 export async function downloadReplay(
   name: string
