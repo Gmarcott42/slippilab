@@ -2,8 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 // @ts-ignore: zoo-ids doesn't ship it's types apparently
 import { generateId } from "zoo-ids";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = 'http://localhost:5173/';
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = '12345';
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
