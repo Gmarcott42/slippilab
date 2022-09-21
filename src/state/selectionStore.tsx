@@ -199,7 +199,7 @@ function applyFilters(
       areNametagsSatisfied
     );
   });
-  let filenames = [];
+  let filenames = [''];
   filtered.forEach((element) => {
     console.log(element[0]['name'])
     filenames.push(element[0]['name']);
